@@ -1,17 +1,14 @@
-# {Team Name} - URL shortener {🧪}
-
-This is a template project for "Software testing" course labs. Use it to create your own repo and 
-fulfill/rewrite this document (at least, replace everything in `{...}`).
+# PoBeda - URL shortener
 
 ## Students group
 
+- Дудка Вадим niqz99@gmail.com
 - {Surname Name (in Ukrainian)} {email}
 - ...
-- {Surname Name (in Ukrainian)} {email}
 
 ## Design document
 
-The [design document]({Place actual link to the design document Google Docs file here}) that
+The [design document](https://docs.google.com/document/d/1nAY45Mf0o8i3cqS51Ihww-g0GjHb9usfSx0qkJns4_s) that
 describes architecture and implementation details of this project.
 
 ### System structure
