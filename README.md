@@ -3,6 +3,7 @@
 ## Students group
 
 - Дудка Вадим niqz99@gmail.com
+- Туганських Олександр ringanaro@gmail.com
 - {Surname Name (in Ukrainian)} {email}
 - ...
 
