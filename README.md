@@ -4,6 +4,7 @@
 
 - Дудка Вадим niqz99@gmail.com
 - Туганських Олександр ringanaro@gmail.com
+- Мазан Ян mazanyan027@gmail.com
 - {Surname Name (in Ukrainian)} {email}
 - ...
 
