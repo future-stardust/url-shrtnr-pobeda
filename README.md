@@ -5,9 +5,7 @@
 - Дудка Вадим niqz99@gmail.com
 - Туганських Олександр ringanaro@gmail.com
 - Мазан Ян mazanyan027@gmail.com
-- {Surname Name (in Ukrainian)} {email}
-- ...
-
+- Повх Михайло mishapovkh1@gmail.com
 ## Design document
 
 The [design document](https://docs.google.com/document/d/1nAY45Mf0o8i3cqS51Ihww-g0GjHb9usfSx0qkJns4_s) that
