@@ -1,5 +1,12 @@
 package edu.kpi.testcourse.bigtable;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,15 +14,19 @@ import java.util.Map;
 // base, implementation of key-value storage, etc)
 
 class BigTableImpl implements BigTable {
-  private final Map<String, String> map = new HashMap<>();
 
   @Override
-  public void put(String key, String value) {
-    map.put(key, value);
+  public void store(String name, String value) {
+
   }
 
   @Override
-  public String get(String key) {
-    return map.get(key);
+  public String read(String name) {
+    return null;
+  }
+
+  @Override
+  public void delete(String name) {
+
   }
 }
