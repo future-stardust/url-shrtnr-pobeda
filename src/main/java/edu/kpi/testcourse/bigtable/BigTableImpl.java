@@ -10,8 +10,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-// ️ Please, pay attention, that you should not use any 3rd party persistence library (e.g. data
-// ️ base, implementation of key-value storage, etc)
+// Please, pay attention, that you should not use any 3rd party persistence library (e.g. data
+// base, implementation of key-value storage, etc)
 
 class BigTableImpl implements BigTable {
 
