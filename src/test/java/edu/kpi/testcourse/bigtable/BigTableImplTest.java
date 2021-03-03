@@ -10,10 +10,11 @@ class BigTableImplTest {
   void checkValueSaving() {
     BigTableImpl bigTable = new BigTableImpl();
 
-    bigTable.put("testKey", "testValue");
-    String value = bigTable.get("testKey");
+    String testData = "test_value";
+    bigTable.store("test", testData);
+    String resp = bigTable.read("test");
 
-    assertThat(value).isEqualTo("testValue");
+    assertThat(testData).isEqualTo(resp);
   }
 
 }
