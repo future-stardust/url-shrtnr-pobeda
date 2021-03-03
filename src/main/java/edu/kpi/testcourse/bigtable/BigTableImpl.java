@@ -7,6 +7,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,18 +20,44 @@ import java.util.Map;
 
 class BigTableImpl implements BigTable {
 
-  @Override
-  public void store(String name, String value) {
+  private final String DATA_FOLDER_NAME = "data";
 
+  public BigTableImpl() {
+    if (!Files.exists(Paths.get(DATA_FOLDER_NAME)))
+    {
+      try {
+        Files.createDirectory(Paths.get(DATA_FOLDER_NAME));
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+    }
   }
 
   @Override
-  public String read(String name) {
-    return null;
+  public void store(String name, String value) throws IOException {
+    if (Files.exists(Paths.get(DATA_FOLDER_NAME, name))) {
+      throw new IOException(String.format("%s already exists",
+        Paths.get(DATA_FOLDER_NAME, name).toString()));
+    }
+    Files.write(Paths.get(DATA_FOLDER_NAME, name), value.getBytes(), StandardOpenOption.CREATE);
   }
 
   @Override
-  public void delete(String name) {
+  public String read(String name) throws IOException {
+    if (!Files.exists(Paths.get(DATA_FOLDER_NAME, name))) {
+      throw new IOException(String.format("%s does not exist",
+        Paths.get(DATA_FOLDER_NAME, name).toString()));
+    }
+    return Files.readString(Paths.get(DATA_FOLDER_NAME, name));
+  }
 
+  @Override
+  public void delete(String name) throws IOException {
+    if (Files.exists(Paths.get(DATA_FOLDER_NAME, name))) {
+      Files.delete(Paths.get(DATA_FOLDER_NAME, name));
+    } else {
+      throw new IOException(String.format("%s does not exist",
+        Paths.get(DATA_FOLDER_NAME, name).toString()));
+    }
   }
 }
