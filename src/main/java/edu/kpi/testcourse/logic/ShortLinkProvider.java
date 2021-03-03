@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.net.URL;
+import java.util.Optional;
 import javax.inject.Singleton;
 
 record ShortLinkMock (
@@ -18,17 +19,17 @@ public class ShortLinkProvider {
 
   {
     try {
-      mockData = new ArrayList<ShortLinkMock>(
+      mockData = new ArrayList<>(
         Arrays.asList(
           new ShortLinkMock(
             "t5H9678F",
             "user1@mail.com",
-            new URL("https://www.instagram.com/")
+            new URL("https://www.texty.org.ua/")
           ),
           new ShortLinkMock(
             "f7G91057",
             "user1@mail.com",
-            new URL("https://texty.org.ua")
+            new URL("https://www.orthodoxum.org/")  // invalid URL
           ),
           new ShortLinkMock(
             "mpP76027",
@@ -50,5 +51,14 @@ public class ShortLinkProvider {
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }
+  }
+
+  public Optional<URL> getDestinationByShortLink(String shortLink) {
+    for (ShortLinkMock link : mockData) {
+      if (link.shortLink().equals(shortLink)) {
+        return Optional.of(link.destination());
+      }
+    }
+    return Optional.empty();
   }
 }
