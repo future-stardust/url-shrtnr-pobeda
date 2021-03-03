@@ -1,4 +1,4 @@
-package edu.kpi.testcourse;
+package edu.kpi.testcourse.rest;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.MediaType;
