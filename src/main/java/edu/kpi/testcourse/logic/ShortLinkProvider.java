@@ -3,10 +3,8 @@ package edu.kpi.testcourse.logic;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.inject.Singleton;
 
 /**
@@ -19,43 +17,7 @@ public class ShortLinkProvider {
   public static final int STANDARD_SHORT_LINK_LENGTH = 8;
   public static final String ALIAS_PATTERN = "[0-9a-zA-Z]+";
 
-  private ArrayList<ShortLinkMock> mockData;
-
-  {
-    try {
-      mockData = new ArrayList<>(
-        Arrays.asList(
-          new ShortLinkMock(
-              "t5H9678F",
-             "user1@mail.com",
-              new URL("https://www.texty.org.ua/")
-          ),
-          new ShortLinkMock(
-              "f7G91057",
-              "user1@mail.com",
-              new URL("https://www.orthodoxum.org/")  // invalid URL
-          ),
-          new ShortLinkMock(
-              "mpP76027",
-              "user2@mail.com",
-              new URL("https://uk.wikipedia.org/wiki/Ніїґата")
-          ),
-          new ShortLinkMock(
-              "mc",
-              "user1@mail.com",
-              new URL("https://readmanga.live/klinok__rassekaiuchii_demonov/vol23/206#page=4")
-          ),
-          new ShortLinkMock(
-              "19l9fr23",
-              "user3@mail.com",
-              new URL("https://darcs.realworldhaskell.org/static/00book.pdf")
-          )
-        )
-      );
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-    }
-  }
+  private final ArrayList<ShortLinkMock> mockData = new ArrayList<>();
 
   /**
    * Retrieve "long version" of link by short link.
@@ -63,17 +25,19 @@ public class ShortLinkProvider {
    * @param shortLink short link
    * @return Optional - "long link" if it had been found in the storage
    */
-  public URL getDestinationByShortLink(String shortLink) {
+  public Optional<URL> getDestinationByShortLink(String shortLink) {
     /*
+    Temporary implementation.
     Future correct implementation:
     return this.linkRepo.findByShortLink(shortLink).destination;
      */
     for (ShortLinkMock link : mockData) {
+      // System.out.println(link);
       if (link.shortLink().equals(shortLink)) {
-        return link.destination();
+        return Optional.of(link.destination());
       }
     }
-    return null;
+    return Optional.empty();
   }
 
   /**
@@ -83,8 +47,8 @@ public class ShortLinkProvider {
    * @param shortLink link proposed by a user
    * @return bool - is a link valid
    */
-  private boolean isLinkValid(String shortLink) {
-    boolean doesNotExistInStorage = this.getDestinationByShortLink(shortLink) == null;
+  private boolean isAliasValid(String shortLink) {
+    boolean doesNotExistInStorage = this.getDestinationByShortLink(shortLink).isEmpty();
 
     return shortLink.matches(ALIAS_PATTERN) && doesNotExistInStorage;
   }
@@ -115,14 +79,43 @@ public class ShortLinkProvider {
   }
 
   /**
+   * Create an URL if it's valid.
+   *
+   * @param destination URL that should be validated
+   * @return URL if it can be created
+   */
+  public Optional<URL> safelyCreateUrl(String destination) {
+    try {
+      URL url = new URL(destination);
+      return Optional.of(url);
+    } catch (MalformedURLException e) {
+      return Optional.empty();
+    }
+  }
+
+  /**
    * Create and save user link without custom alias provided.
    * Generates alias automatically.
    *
    * @param destination - "long" link alias must be provided for
    * @return if a link has been created
    */
-  public ShortLinkMock saveLink(String destination) {
-    return mockData.get(0);
+  public Optional<ShortLinkMock> saveLink(String userEmail, String destination) {
+    Optional<URL> destinationLink = this.safelyCreateUrl(destination);
+
+    if (destinationLink.isPresent()) {
+      String alias = this.generateAlias();
+      while (this.getDestinationByShortLink(alias).isPresent()) {
+        alias = this.generateAlias();
+      }
+      ShortLinkMock link = new ShortLinkMock(alias, userEmail, destinationLink.get());
+      // temporary implementation
+      this.mockData.add(link);
+
+      return Optional.of(link);
+    }
+
+    return Optional.empty();
   }
 
   /**
@@ -132,7 +125,17 @@ public class ShortLinkProvider {
    * @param alias - custom user alias for a "long" link
    * @return if a link has been created
    */
-  public ShortLinkMock saveLink(String destination, String alias) {
-    return mockData.get(0);
+  public Optional<ShortLinkMock> saveLink(String userEmail, String destination, String alias) {
+    Optional<URL> destinationLink = this.safelyCreateUrl(destination);
+
+    if (destinationLink.isPresent() && this.isAliasValid(alias)) {
+      ShortLinkMock link = new ShortLinkMock(alias, userEmail, destinationLink.get());
+      // temporary implementation
+      this.mockData.add(link);
+
+      return Optional.of(link);
+    }
+
+    return Optional.empty();
   }
 }
