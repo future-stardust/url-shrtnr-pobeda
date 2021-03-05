@@ -12,7 +12,7 @@ import javax.inject.Singleton;
  * Currently uses mock data
  */
 @Singleton
-public class ShortLinkProvider {
+public class ShortLinkServiceImpl implements ShortLinkService {
 
   public static final int STANDARD_SHORT_LINK_LENGTH = 8;
   public static final String ALIAS_PATTERN = "[0-9a-zA-Z]+";

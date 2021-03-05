@@ -5,23 +5,23 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ShortLinkProviderTest {
+public class ShortLinkServiceTest {
 
-  private static ShortLinkProvider provider;
+  private static ShortLinkServiceImpl provider;
   private static String userEmail;
 
   @BeforeAll
   public static void initProvider() {
     userEmail = "test_user@mail.com";
-    provider = new ShortLinkProvider();
+    provider = new ShortLinkServiceImpl();
 
     provider.saveLink("user3@mail.com", "https://darcs.realworldhaskell.org/static/00book.pdf", "book");
   }
 
   @Test
   public void shouldProviderExist() {
-    ShortLinkProvider shortLinkProvider = new ShortLinkProvider();
-    assertThat(shortLinkProvider).isNotNull();
+    ShortLinkServiceImpl shortLinkService = new ShortLinkServiceImpl();
+    assertThat(shortLinkService).isNotNull();
   }
 
   @Test
@@ -32,7 +32,7 @@ public class ShortLinkProviderTest {
   @Test
   public void shouldContainValidCharacters() {
     String alias = provider.generateAlias();
-    assertThat(alias).matches(ShortLinkProvider.ALIAS_PATTERN);
+    assertThat(alias).matches(ShortLinkServiceImpl.ALIAS_PATTERN);
   }
 
   @Test
