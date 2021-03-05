@@ -1,5 +1,6 @@
 package edu.kpi.testcourse.logic;
 
+import edu.kpi.testcourse.exception.InvalidUrlException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -113,9 +114,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
       this.mockData.add(link);
 
       return Optional.of(link);
+    } else {
+      throw new InvalidUrlException();
     }
-
-    return Optional.empty();
   }
 
   /**

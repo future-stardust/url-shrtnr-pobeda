@@ -14,7 +14,7 @@ import javax.inject.Singleton;
 @Singleton
 @Requires(classes = {ShortLinkNotFoundException.class, ExceptionHandler.class})
 public class ShortLinkNotFoundExceptionHandler
-  implements ExceptionHandler<ShortLinkNotFoundException, HttpResponse> {
+    implements ExceptionHandler<ShortLinkNotFoundException, HttpResponse> {
   @Override
   public HttpResponse handle(HttpRequest request, ShortLinkNotFoundException exception) {
     return HttpResponse.notFound("Link with given alias was not found");

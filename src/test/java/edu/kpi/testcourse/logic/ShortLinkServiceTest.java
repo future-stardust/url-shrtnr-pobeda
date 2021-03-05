@@ -1,9 +1,11 @@
 package edu.kpi.testcourse.logic;
 
+import edu.kpi.testcourse.exception.InvalidUrlException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ShortLinkServiceTest {
 
@@ -39,7 +41,8 @@ public class ShortLinkServiceTest {
   public void shouldNotSaveInvalidUrl() {
     String invalidUrl = "htp//invalid-url.com";
 
-    assertThat(provider.saveLink(userEmail, invalidUrl)).isEmpty();
+    assertThatThrownBy(() -> provider.saveLink(userEmail, invalidUrl))
+      .isInstanceOf(InvalidUrlException.class);
   }
 
   @Test
