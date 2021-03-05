@@ -16,7 +16,9 @@ import javax.inject.Singleton;
 @Singleton
 public class ShortLinkProvider {
 
-  private static final int STANDARD_SHORT_LINK_LENGTH = 8;
+  public static final int STANDARD_SHORT_LINK_LENGTH = 8;
+  public static final String ALIAS_PATTERN = "[0-9a-zA-Z]+";
+
   private ArrayList<ShortLinkMock> mockData;
 
   {
@@ -82,10 +84,9 @@ public class ShortLinkProvider {
    * @return bool - is a link valid
    */
   private boolean isLinkValid(String shortLink) {
-    String pattern = "[0-9a-zA-Z]+";
     boolean doesNotExistInStorage = this.getDestinationByShortLink(shortLink) == null;
 
-    return shortLink.matches(pattern) && doesNotExistInStorage;
+    return shortLink.matches(ALIAS_PATTERN) && doesNotExistInStorage;
   }
 
   /**
@@ -96,12 +97,12 @@ public class ShortLinkProvider {
   public String generateAlias() {
     Random random = new Random();
 
-    int minNumCode = (int) '0';
-    int maxNumCode = (int) '9';
-    int minBigLetterCode = (int) 'A';
-    int maxBigLetterCode = (int) 'Z';
-    int minSmallLetterCode = (int) 'a';
-    int maxSmallLetterCode = (int) 'z';
+    int minNumCode = '0';
+    int maxNumCode = '9';
+    int minBigLetterCode = 'A';
+    int maxBigLetterCode = 'Z';
+    int minSmallLetterCode = 'a';
+    int maxSmallLetterCode = 'z';
 
     return random.ints(minNumCode, maxSmallLetterCode + 1)
       .filter(i ->
