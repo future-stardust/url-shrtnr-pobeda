@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 public class ShortLinkServiceImpl implements ShortLinkService {
 
   public static final int STANDARD_SHORT_LINK_LENGTH = 8;
+  public static final String SHORT_LINK_BEGINNING = "http://localhost:8080/r/";
   public static final String ALIAS_PATTERN = "[0-9a-zA-Z]+";
 
   private final ArrayList<ShortLinkMock> mockData = new ArrayList<>();
@@ -42,16 +43,23 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   }
 
   /**
-   * Validate a link alias proposed by user.
-   * Short link should be an alphanumeric string and not exist in the storage before.
+   * Validate a link alias proposed by user. Must be not present.
    *
-   * @param shortLink link proposed by a user
-   * @return bool - is a link valid
+   * @param alias short link provided by a user
+   * @return is alias already used
    */
-  private boolean isAliasValid(String shortLink) {
-    boolean doesNotExistInStorage = this.getDestinationByShortLink(shortLink).isEmpty();
+  private boolean isAliasAlreadyUsed(String alias) {
+    return this.getDestinationByShortLink(alias).isPresent();
+  }
 
-    return shortLink.matches(ALIAS_PATTERN) && doesNotExistInStorage;
+  /**
+   * Validate a link alias proposed by user. Must be an alphanumeric string.
+   *
+   * @param alias short link provided by a user
+   * @return does alias matches regex [0-9a-zA-Z]+
+   */
+  private boolean isAliasAlphanumeric(String alias) {
+    return alias.matches(ALIAS_PATTERN);
   }
 
   /**
@@ -95,6 +103,16 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   }
 
   /**
+   * Append alias to server address.
+   *
+   * @param shortLink - alias.
+   * @return full link.
+   */
+  public static String createFullLink(String shortLink) {
+    return SHORT_LINK_BEGINNING + shortLink;
+  }
+
+  /**
    * Create and save user link without custom alias provided.
    * Generates alias automatically.
    *
@@ -104,7 +122,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   public Optional<ShortLinkMock> saveLink(String userEmail, String destination) {
     Optional<URL> destinationLink = this.safelyCreateUrl(destination);
 
-    if (destinationLink.isPresent()) {
+    if (destinationLink.isEmpty()) {
+      throw new InvalidUrlException("Provided url is not valid http or https url");
+    } else {
       String alias = this.generateAlias();
       while (this.getDestinationByShortLink(alias).isPresent()) {
         alias = this.generateAlias();
@@ -114,8 +134,6 @@ public class ShortLinkServiceImpl implements ShortLinkService {
       this.mockData.add(link);
 
       return Optional.of(link);
-    } else {
-      throw new InvalidUrlException();
     }
   }
 
@@ -126,17 +144,22 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * @param alias - custom user alias for a "long" link
    * @return if a link has been created
    */
-  public Optional<ShortLinkMock> saveLink(String userEmail, String destination, String alias) {
+  public Optional<ShortLinkMock> saveLink(String userEmail, String destination, String alias)
+      throws InvalidUrlException {
     Optional<URL> destinationLink = this.safelyCreateUrl(destination);
 
-    if (destinationLink.isPresent() && this.isAliasValid(alias)) {
+    if (destinationLink.isEmpty()) {
+      throw new InvalidUrlException("Provided url is not valid http or https url");
+    } else if (this.isAliasAlreadyUsed(alias)) {
+      throw new InvalidUrlException("Desired alias is already taken");
+    } else if (!this.isAliasAlphanumeric(alias)) {
+      throw new InvalidUrlException("Desired alias is not alphanumeric string");
+    } else {
       ShortLinkMock link = new ShortLinkMock(alias, userEmail, destinationLink.get());
       // temporary implementation
       this.mockData.add(link);
 
       return Optional.of(link);
     }
-
-    return Optional.empty();
   }
 }

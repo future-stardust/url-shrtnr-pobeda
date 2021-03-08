@@ -57,7 +57,8 @@ public class ShortLinkServiceTest {
     String existentAlias = "book";
     String url = "http://genhis.philol.msu.ru/article_35.shtml";
 
-    provider.saveLink(userEmail, url, existentAlias);
+    assertThatThrownBy(() -> provider.saveLink(userEmail, url, existentAlias))
+      .isInstanceOf(InvalidUrlException.class);
 
     assertThat(provider.getDestinationByShortLink(existentAlias).get().toString())
       .isEqualTo("https://darcs.realworldhaskell.org/static/00book.pdf");
@@ -69,10 +70,9 @@ public class ShortLinkServiceTest {
     String badAlias2 = "do-not-read";
     String url = "https://ficbook.net/readfic/9255279";
 
-    provider.saveLink(userEmail, url, badAlias1);
-    provider.saveLink(userEmail, url, badAlias2);
-
-    assertThat(provider.getDestinationByShortLink(badAlias1)).isEmpty();
-    assertThat(provider.getDestinationByShortLink(badAlias2)).isEmpty();
+    assertThatThrownBy(() -> provider.saveLink(userEmail, url, badAlias1))
+      .isInstanceOf(InvalidUrlException.class);
+    assertThatThrownBy(() -> provider.saveLink(userEmail, url, badAlias2))
+      .isInstanceOf(InvalidUrlException.class);
   }
 }
