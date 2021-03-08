@@ -117,9 +117,10 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * Generates alias automatically.
    *
    * @param destination - "long" link alias must be provided for
-   * @return if a link has been created
+   * @return a link that has been created
    */
-  public Optional<ShortLinkMock> saveLink(String userEmail, String destination) {
+  public ShortLinkMock saveLink(String userEmail, String destination)
+      throws InvalidUrlException {
     Optional<URL> destinationLink = this.safelyCreateUrl(destination);
 
     if (destinationLink.isEmpty()) {
@@ -133,7 +134,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
       // temporary implementation
       this.mockData.add(link);
 
-      return Optional.of(link);
+      return link;
     }
   }
 
@@ -142,9 +143,9 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    *
    * @param destination - "long" link alias must be provided for
    * @param alias - custom user alias for a "long" link
-   * @return if a link has been created
+   * @return a link that has been created
    */
-  public Optional<ShortLinkMock> saveLink(String userEmail, String destination, String alias)
+  public ShortLinkMock saveLink(String userEmail, String destination, String alias)
       throws InvalidUrlException {
     Optional<URL> destinationLink = this.safelyCreateUrl(destination);
 
@@ -159,7 +160,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
       // temporary implementation
       this.mockData.add(link);
 
-      return Optional.of(link);
+      return link;
     }
   }
 }

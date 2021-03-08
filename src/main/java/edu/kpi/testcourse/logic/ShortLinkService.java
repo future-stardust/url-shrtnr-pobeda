@@ -13,7 +13,7 @@ public interface ShortLinkService {
 
   Optional<URL> safelyCreateUrl(String destination);
 
-  Optional<ShortLinkMock> saveLink(String userEmail, String destination);
+  ShortLinkMock saveLink(String userEmail, String destination);
 
-  Optional<ShortLinkMock> saveLink(String userEmail, String destination, String alias);
+  ShortLinkMock saveLink(String userEmail, String destination, String alias);
 }
