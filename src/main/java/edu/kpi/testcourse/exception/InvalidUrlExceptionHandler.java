@@ -17,6 +17,6 @@ public class InvalidUrlExceptionHandler
     implements ExceptionHandler<InvalidUrlException, HttpResponse> {
   @Override
   public HttpResponse handle(HttpRequest request, InvalidUrlException exception) {
-    return HttpResponse.badRequest("An attempt to save invalid URl");
+    return HttpResponse.badRequest(exception.getMessage());
   }
 }
