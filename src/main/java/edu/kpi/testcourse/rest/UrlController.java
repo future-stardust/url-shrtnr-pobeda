@@ -2,14 +2,15 @@ package edu.kpi.testcourse.rest;
 
 import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.auth.AuthorizationMockServiceImpl;
-import edu.kpi.testcourse.exception.UnauthorizedException;
 import edu.kpi.testcourse.logic.ShortLinkMock;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.core.annotation.Introspected;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
@@ -17,6 +18,7 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import java.util.Collections;
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
 /**
  * Controller of POST /urls/shorten, DELETE /urls/{alias}, GET /urls.
@@ -68,5 +70,25 @@ public class UrlController {
     System.out.println(fullShortLink);
 
     return Main.getGson().toJson(Collections.singletonMap("shortened_url", fullShortLink));
+  }
+
+  /**
+   * An authorized user can delete an alias created by him.
+   * DELETE /urls/{alias}
+   *
+   * @param token token of user
+   * @param alias alias to delete
+   * @return the URL has been deleted or not
+   */
+  @Delete("/{alias}")
+  public HttpResponse<String> deleteUrl(@Header String token, @NotNull String alias) {
+    String email = this.authorizationMockService.authorizeUser(token);
+    boolean wasRemoved = this.shortLinkService.deleteLinkIfBelongsToUser(email, alias);
+
+    if (!wasRemoved) {
+      return HttpResponse.notFound();
+    } else {
+      return HttpResponse.noContent();
+    }
   }
 }

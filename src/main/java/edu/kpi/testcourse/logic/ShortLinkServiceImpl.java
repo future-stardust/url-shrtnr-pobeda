@@ -43,6 +43,22 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   }
 
   /**
+   * Delete link entity by alias if belongs to a user with given email.
+   *
+   * @param email user's email
+   * @param shortLink link's alias
+   * @return if a link has been returned
+   */
+  public boolean deleteLinkIfBelongsToUser(String email, String shortLink) {
+    /*
+    Temporary implementation.
+     */
+    return mockData.removeIf(
+      link -> link.userEmail().equals(email) && link.shortLink().equals(shortLink)
+    );
+  }
+
+  /**
    * Validate a link alias proposed by user. Must be not present.
    *
    * @param alias short link provided by a user
