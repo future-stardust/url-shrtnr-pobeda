@@ -1,6 +1,7 @@
 package edu.kpi.testcourse.rest;
 
-import edu.kpi.testcourse.exception.InvalidUrlException;
+import com.google.gson.Gson;
+import edu.kpi.testcourse.rest.UrlController.UserUrl;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -22,6 +24,7 @@ public class ShortenLinkTest {
 
   private static EmbeddedServer server;
   private static HttpClient client;
+  private static final Gson g = new Gson();
 
   @BeforeAll
   public static void setupServer() {
@@ -46,7 +49,7 @@ public class ShortenLinkTest {
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", "")// .header("token", "wetwetwetwe")
+        HttpRequest.POST("/urls/shorten", "")
       )
     );
 
@@ -65,7 +68,58 @@ public class ShortenLinkTest {
     assertEquals(400, e.getStatus().getCode());
   }
 
+  @Test
   public void shouldThrowErrorWithEmptyBody() {
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.POST("/urls/shorten", "").header("token", TEST_VALID_TOKEN)
+      )
+    );
 
+    assertEquals(400, e.getStatus().getCode());
+  }
+
+  @Test
+  public void shouldSaveValidUrl() {
+    String body = client.toBlocking().retrieve(
+      HttpRequest.POST("/urls/shorten", new UserUrl(
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/",
+        null
+      )).header("token", TEST_VALID_TOKEN)
+    );
+
+    Object parsedBody = g.fromJson(body, Object.class);
+
+    assertThat(parsedBody).hasFieldOrProperty("shortened_url");
+  }
+
+  @Test
+  public void shouldNotSaveInvalidUrl() {
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+      HttpRequest.POST("/urls/shorten", new UserUrl(
+        "ht/devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/",
+        null
+      )).header("token", TEST_VALID_TOKEN)
+      )
+    );
+
+    assertEquals(400, e.getStatus().getCode());
+  }
+
+  @Test
+  public void shouldSaveWithAlias() {
+    String alias = "alias";
+
+    String body = client.toBlocking().retrieve(
+      HttpRequest.POST("/urls/shorten", new UserUrl(
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/",
+        alias
+      )).header("token", TEST_VALID_TOKEN)
+    );
+
+    assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
   }
 }

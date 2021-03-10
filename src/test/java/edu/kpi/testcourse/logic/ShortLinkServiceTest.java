@@ -17,7 +17,11 @@ public class ShortLinkServiceTest {
     userEmail = "test_user@mail.com";
     provider = new ShortLinkServiceImpl();
 
-    provider.saveLink("user3@mail.com", "https://darcs.realworldhaskell.org/static/00book.pdf", "book");
+    provider.saveLink(
+      "user3@mail.com",
+      "https://darcs.realworldhaskell.org/static/00book.pdf",
+      "book"
+    );
   }
 
   @Test
@@ -74,5 +78,16 @@ public class ShortLinkServiceTest {
       .isInstanceOf(InvalidUrlException.class);
     assertThatThrownBy(() -> provider.saveLink(userEmail, url, badAlias2))
       .isInstanceOf(InvalidUrlException.class);
+  }
+
+  @Test
+  public void shouldRetrieveSavedLinks() {
+    ShortLinkMock shortLink = provider.saveLink(
+      "user3@mail.com",
+      "https://en.wikipedia.org/wiki/Al-Ahsa_Oasis"
+    );
+
+    assertThat(provider.getDestinationByShortLink(shortLink.shortLink()).get())
+      .isEqualTo(shortLink.destination());
   }
 }
