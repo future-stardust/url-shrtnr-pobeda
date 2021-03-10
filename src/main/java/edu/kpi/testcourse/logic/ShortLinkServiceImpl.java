@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 import javax.inject.Singleton;
 
 /**
@@ -56,6 +57,21 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     return mockData.removeIf(
       link -> link.userEmail().equals(email) && link.shortLink().equals(shortLink)
     );
+  }
+
+  /**
+   * Get links created by a user.
+   *
+   * @param email email of user
+   * @return list of user's links
+   */
+  public ArrayList<ShortLinkMock> getLinksByUserEmail(String email) {
+    /*
+    Temporary implementation
+     */
+    return mockData.stream()
+      .filter(link -> link.userEmail().equals(email))
+      .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /**

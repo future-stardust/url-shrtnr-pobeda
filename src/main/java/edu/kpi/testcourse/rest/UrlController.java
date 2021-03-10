@@ -7,15 +7,18 @@ import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
+import java.util.ArrayList;
 import java.util.Collections;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -38,6 +41,12 @@ public class UrlController {
    */
   @Introspected
   public record UserUrl(String url, String alias) {}
+
+  /**
+   * Standard response body for GET /urls.
+   */
+  @Introspected
+  public record UserUrls(ArrayList<ShortLinkMock> urls) {}
 
   /**
    * Authorized user cen shorten an URL on this route.
@@ -90,5 +99,11 @@ public class UrlController {
     } else {
       return HttpResponse.noContent();
     }
+  }
+
+  @Get()
+  public MutableHttpResponse<UserUrls> getUserUrls(@Header String token) {
+    String email = this.authorizationMockService.authorizeUser(token);
+    return HttpResponse.ok(new UserUrls(this.shortLinkService.getLinksByUserEmail(email)));
   }
 }
