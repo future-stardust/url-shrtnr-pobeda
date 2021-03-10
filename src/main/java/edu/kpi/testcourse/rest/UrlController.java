@@ -2,6 +2,7 @@ package edu.kpi.testcourse.rest;
 
 import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.auth.AuthorizationMockServiceImpl;
+import edu.kpi.testcourse.exception.UnauthorizedException;
 import edu.kpi.testcourse.logic.ShortLinkMock;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.core.annotation.Introspected;
@@ -12,13 +13,15 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import java.util.Collections;
-import java.util.Optional;
 import javax.inject.Inject;
 
 /**
  * Controller of POST /urls/shorten, DELETE /urls/{alias}, GET /urls.
  */
+@Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller("/urls")
 public class UrlController {
 
@@ -28,8 +31,11 @@ public class UrlController {
   @Inject
   AuthorizationMockServiceImpl authorizationMockService;
 
+  /**
+   * Standard request body for POST /url/shorten.
+   */
   @Introspected
-  record UserUrl(String url, String alias) {}
+  public record UserUrl(String url, String alias) {}
 
   /**
    * Authorized user cen shorten an URL on this route.
