@@ -1,4 +1,4 @@
-package edu.kpi.testcourse.except;
+package edu.kpi.testcourse.exception;
 
 /**
  * Exception for all situations with users, specific data should be put in message.
