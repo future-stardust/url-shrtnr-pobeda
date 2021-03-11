@@ -5,6 +5,7 @@ package edu.kpi.testcourse.bigtable;
 // base, implementation of key-value storage, etc)
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 /**
  * BigTable is a json storage.
@@ -33,4 +34,9 @@ public interface BigTable {
    * @param name filename
    */
   void delete(String name) throws IOException;
+
+  /**
+   * Returns Path of storage directory.
+   */
+  Path getDir();
 }

@@ -5,7 +5,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Dto for User.
  */
-public record User(@JsonProperty("email") String email, @JsonProperty("password") String password) {
+public final class User {
+
+  private String email;
+  private String password;
+
+  public User(String email, String password) {
+    this.email = email;
+    this.password = password;
+  }
+
+  public String email() {
+    return email;
+  }
+
+  public String password() {
+    return password;
+  }
 
   /**
    * Check if user data is valid.
