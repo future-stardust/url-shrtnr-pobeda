@@ -5,6 +5,7 @@ micronaut:
     cors:
       enabled: true
   security:
+    enabled: false
     authentication: bearer
     token:
       jwt:

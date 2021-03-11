@@ -1,6 +1,6 @@
 package edu.kpi.testcourse.repos;
 
-import edu.kpi.testcourse.except.UsersException;
+import edu.kpi.testcourse.exception.UsersException;
 import java.util.List;
 import java.util.Optional;
 

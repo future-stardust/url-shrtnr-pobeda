@@ -1,6 +1,6 @@
 package edu.kpi.testcourse.repos;
 
-import edu.kpi.testcourse.except.UrlsException;
+import edu.kpi.testcourse.exception.UrlsException;
 import java.util.Optional;
 
 /**
