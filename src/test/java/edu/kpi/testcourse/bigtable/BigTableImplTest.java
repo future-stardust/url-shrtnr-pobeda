@@ -28,40 +28,42 @@ class BigTableImplTest {
 
   @Test
   void fileCreationDeletionTest() {
-    assertDoesNotThrow(() -> bigTable.store(testName + 1, "testValue"));
-    assertDoesNotThrow(() -> bigTable.delete(testName + 1));
+    assertDoesNotThrow(() -> bigTable.store(testName + 1, "testValue",
+      DataFolder.Links));
+    assertDoesNotThrow(() -> bigTable.delete(testName + 1, DataFolder.Links));
   }
 
   @Test
   void valueSavingTest() {
     String testValue = "testValue";
-    assertDoesNotThrow(() -> bigTable.store(testName, testValue));
+    assertDoesNotThrow(() -> bigTable.store(testName, testValue, DataFolder.Links));
 
     assertDoesNotThrow(() -> {
-      String resp = bigTable.read(testName);
+      String resp = bigTable.read(testName, DataFolder.Links);
       assertThat(resp).isEqualTo("testValue");
     });
 
-    assertDoesNotThrow(() -> bigTable.delete(testName));
+    assertDoesNotThrow(() -> bigTable.delete(testName, DataFolder.Links));
   }
 
   @Test
   void exceptionStoreFileAlreadyExistsTest()
   {
-    assertDoesNotThrow(() -> bigTable.store(testName, "testValue"));
-    assertThrows(IOException.class, () -> bigTable.store(testName, "newTestValue"));
-    assertDoesNotThrow(() -> bigTable.delete(testName));
+    assertDoesNotThrow(() -> bigTable.store(testName, "testValue", DataFolder.Links));
+    assertThrows(IOException.class, () -> bigTable.store(testName, "newTestValue",
+      DataFolder.Links));
+    assertDoesNotThrow(() -> bigTable.delete(testName, DataFolder.Links));
   }
 
   @Test
   void exceptionReadFileDoesNotExist()
   {
-    assertThrows(IOException.class, () -> bigTable.read("newTestName"));
+    assertThrows(IOException.class, () -> bigTable.read("newTestName", DataFolder.Links));
   }
 
   @Test
   void exceptionDeleteFileDoesNotExist()
   {
-    assertThrows(IOException.class, () -> bigTable.delete("newTestName"));
+    assertThrows(IOException.class, () -> bigTable.delete("newTestName", DataFolder.Links));
   }
 }
