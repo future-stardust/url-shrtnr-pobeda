@@ -46,13 +46,10 @@ class BigTableImpl implements BigTable {
   @Override
   public void store(String name, String value, DataFolder folder) throws IOException {
     Path path = Paths.get(DATA_FOLDER_NAME, name);
-    switch (folder) {
-      case Links -> {
-        path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
-      }
-      case Users -> {
-        path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
-      }
+    if (folder == DataFolder.Links) {
+      path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
+    } else if (folder == DataFolder.Users) {
+      path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
     }
     if (Files.exists(path)) {
       throw new FileAlreadyExistsException(String.format("%s already exists", path.toString()));
@@ -63,13 +60,10 @@ class BigTableImpl implements BigTable {
   @Override
   public String read(String name, DataFolder folder) throws IOException {
     Path path = Paths.get(DATA_FOLDER_NAME, name);
-    switch (folder) {
-      case Links -> {
-        path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
-      }
-      case Users -> {
-        path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
-      }
+    if (folder == DataFolder.Links) {
+      path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
+    } else if (folder == DataFolder.Users) {
+      path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
     }
     if (!Files.exists(path)) {
       throw new FileNotFoundException(String.format("%s does not exist", path.toString()));
@@ -80,13 +74,10 @@ class BigTableImpl implements BigTable {
   @Override
   public void delete(String name, DataFolder folder) throws IOException {
     Path path = Paths.get(DATA_FOLDER_NAME, name);
-    switch (folder) {
-      case Links -> {
-        path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
-      }
-      case Users -> {
-        path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
-      }
+    if (folder == DataFolder.Links) {
+      path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
+    } else if (folder == DataFolder.Users) {
+      path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
     }
     if (Files.exists(path)) {
       Files.delete(path);
@@ -97,13 +88,10 @@ class BigTableImpl implements BigTable {
 
   @Override
   public Path getDir(DataFolder folder) {
-    switch (folder) {
-      case Links -> {
-        return Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME);
-      }
-      case Users -> {
-        return Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME);
-      }
+    if (folder == DataFolder.Links) {
+      return Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME);
+    } else if (folder == DataFolder.Users) {
+      return Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME);
     }
     return Paths.get(DATA_FOLDER_NAME);
   }

@@ -9,12 +9,22 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+
+/**
+ * Default implementation for LinkRepository.
+ */
 @Singleton
 public class LinkRepositoryImpl implements LinkRepository {
 
   @Inject
   private BigTableManager bigTableManager;
 
+  /**
+   * Returns short link object for alias.
+   *
+   * @param shortLink alias
+   * @return short link if it has been found
+   */
   @Override
   public Optional<ShortLinkMock> findByShortLink(String shortLink) {
     try {
@@ -24,16 +34,24 @@ public class LinkRepositoryImpl implements LinkRepository {
     }
   }
 
+  /**
+   * Removes link from BigTable.
+   *
+   * @param email of user
+   * @param shortLink to delete
+   * @return true if successful
+   */
   @Override
   public boolean deleteLink(String email, String shortLink) {
     try {
       Optional<ShortLinkMock> link = bigTableManager.findShortLink(shortLink);
-      if (link.isEmpty()) return false;
+      if (link.isEmpty()) {
+        return false;
+      }
       if (link.get().userEmail().equals(email)) {
         bigTableManager.deleteLink(shortLink);
         return true;
-      }
-      else {
+      } else {
         return false;
       }
     } catch (IOException exception) {
@@ -41,6 +59,12 @@ public class LinkRepositoryImpl implements LinkRepository {
     }
   }
 
+  /**
+   * Returns list of aliases of specified user.
+   *
+   * @param email od user
+   * @return ArrayList
+   */
   @Override
   public ArrayList<ShortLinkMock> getLinksOfUser(String email) {
     try {
@@ -50,6 +74,11 @@ public class LinkRepositoryImpl implements LinkRepository {
     }
   }
 
+  /**
+   * Persists provided link.
+   *
+   * @param link to save
+   */
   @Override
   public void saveLink(ShortLinkMock link) {
     try {

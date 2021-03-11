@@ -4,6 +4,9 @@ import edu.kpi.testcourse.logic.ShortLinkMock;
 import java.util.ArrayList;
 import java.util.Optional;
 
+/**
+ * Interface for link repo.
+ */
 public interface LinkRepository {
 
   Optional<ShortLinkMock> findByShortLink(String shortLink);

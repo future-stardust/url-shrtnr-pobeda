@@ -34,7 +34,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    */
   public Optional<URL> getDestinationByShortLink(String shortLink) {
     Optional<ShortLinkMock> resp = linkRepo.findByShortLink(shortLink);
-     return (resp.isPresent())
+    return resp.isPresent()
        ? Optional.of(resp.get().destination())
        : Optional.empty();
   }
