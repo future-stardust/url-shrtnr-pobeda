@@ -16,6 +16,8 @@ import javax.inject.Singleton;
 class BigTableImpl implements BigTable {
 
   private static final String DATA_FOLDER_NAME = "data";
+  private static final String USERS_FOLDER_NAME = "users";
+  private static final String LINKS_FOLDER_NAME = "links";
 
   public BigTableImpl() {
     if (!Files.exists(Paths.get(DATA_FOLDER_NAME))) {
@@ -25,38 +27,84 @@ class BigTableImpl implements BigTable {
         ex.printStackTrace();
       }
     }
-  }
-
-  @Override
-  public void store(String name, String value) throws IOException {
-    if (Files.exists(Paths.get(DATA_FOLDER_NAME, name))) {
-      throw new FileAlreadyExistsException(String.format("%s already exists",
-        Paths.get(DATA_FOLDER_NAME, name).toString()));
+    if (!Files.exists(Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME))) {
+      try {
+        Files.createDirectory(Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME));
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
     }
-    Files.write(Paths.get(DATA_FOLDER_NAME, name), value.getBytes(), StandardOpenOption.CREATE);
-  }
-
-  @Override
-  public String read(String name) throws IOException {
-    if (!Files.exists(Paths.get(DATA_FOLDER_NAME, name))) {
-      throw new FileNotFoundException(String.format("%s does not exist",
-        Paths.get(DATA_FOLDER_NAME, name).toString()));
+    if (!Files.exists(Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME))) {
+      try {
+        Files.createDirectory(Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME));
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
     }
-    return Files.readString(Paths.get(DATA_FOLDER_NAME, name));
   }
 
   @Override
-  public void delete(String name) throws IOException {
-    if (Files.exists(Paths.get(DATA_FOLDER_NAME, name))) {
-      Files.delete(Paths.get(DATA_FOLDER_NAME, name));
+  public void store(String name, String value, DataFolder folder) throws IOException {
+    Path path = Paths.get(DATA_FOLDER_NAME, name);
+    switch (folder) {
+      case Links -> {
+        path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
+      }
+      case Users -> {
+        path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
+      }
+    }
+    if (Files.exists(path)) {
+      throw new FileAlreadyExistsException(String.format("%s already exists", path.toString()));
+    }
+    Files.write(path, value.getBytes(), StandardOpenOption.CREATE);
+  }
+
+  @Override
+  public String read(String name, DataFolder folder) throws IOException {
+    Path path = Paths.get(DATA_FOLDER_NAME, name);
+    switch (folder) {
+      case Links -> {
+        path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
+      }
+      case Users -> {
+        path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
+      }
+    }
+    if (!Files.exists(path)) {
+      throw new FileNotFoundException(String.format("%s does not exist", path.toString()));
+    }
+    return Files.readString(path);
+  }
+
+  @Override
+  public void delete(String name, DataFolder folder) throws IOException {
+    Path path = Paths.get(DATA_FOLDER_NAME, name);
+    switch (folder) {
+      case Links -> {
+        path = Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME, name);
+      }
+      case Users -> {
+        path = Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME, name);
+      }
+    }
+    if (Files.exists(path)) {
+      Files.delete(path);
     } else {
-      throw new FileNotFoundException(String.format("%s does not exist",
-        Paths.get(DATA_FOLDER_NAME, name).toString()));
+      throw new FileNotFoundException(String.format("%s does not exist", path.toString()));
     }
   }
 
   @Override
-  public Path getDir() {
+  public Path getDir(DataFolder folder) {
+    switch (folder) {
+      case Links -> {
+        return Paths.get(DATA_FOLDER_NAME, LINKS_FOLDER_NAME);
+      }
+      case Users -> {
+        return Paths.get(DATA_FOLDER_NAME, USERS_FOLDER_NAME);
+      }
+    }
     return Paths.get(DATA_FOLDER_NAME);
   }
 }

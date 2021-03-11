@@ -17,7 +17,7 @@ import javax.inject.Singleton;
 public class UserRepositoryImpl implements UserRepository {
 
   @Inject
-  private BigTableManagerImpl bigTableManager;
+  private BigTableManager bigTableManager;
 
   @Override
   public Optional<User> findByEmail(String email) {

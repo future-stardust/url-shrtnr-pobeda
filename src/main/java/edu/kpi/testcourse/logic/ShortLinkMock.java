@@ -1,14 +1,31 @@
 package edu.kpi.testcourse.logic;
 
-import io.micronaut.core.annotation.Introspected;
 import java.net.URL;
 
 /**
  * Mock data for short link record in the data storage.
  */
-@Introspected
-public record ShortLinkMock(
-    String shortLink,
-    String userEmail,
-    URL destination
-) {}
+public class ShortLinkMock {
+  private String shortLink;
+  private String email;
+  private URL destination;
+
+
+  public ShortLinkMock(String shortLink, String email, URL destination) {
+    this.shortLink = shortLink;
+    this.email = email;
+    this.destination = destination;
+  }
+
+  public String shortLink() {
+    return shortLink;
+  }
+
+  public String userEmail() {
+    return email;
+  }
+
+  public URL destination() {
+    return destination;
+  }
+}

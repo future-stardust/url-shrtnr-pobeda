@@ -13,12 +13,12 @@ import java.nio.file.Path;
 public interface BigTable {
 
   /**
-   * Stores provided data within separated json file.
+   * Stores provided data within separate json file.
    *
    * @param name filename
    * @param value to store
    */
-  void store(String name, String value) throws IOException;
+  void store(String name, String value, DataFolder folder) throws IOException;
 
   /**
    * Reads and deserializes file if found.
@@ -26,17 +26,17 @@ public interface BigTable {
    * @param name filename
    * @return json string
    */
-  String read(String name) throws IOException;
+  String read(String name, DataFolder folder) throws IOException;
 
   /**
    * Deletes file with provided filename.
    *
    * @param name filename
    */
-  void delete(String name) throws IOException;
+  void delete(String name, DataFolder folder) throws IOException;
 
   /**
    * Returns Path of storage directory.
    */
-  Path getDir();
+  Path getDir(DataFolder folder);
 }
