@@ -1,29 +1,51 @@
 package edu.kpi.testcourse.logic;
 
+import edu.kpi.testcourse.bigtable.BigTable;
+import edu.kpi.testcourse.bigtable.DataFolder;
 import edu.kpi.testcourse.exception.InvalidUrlException;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import javax.inject.Inject;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@MicronautTest
 public class ShortLinkServiceTest {
 
-  private static ShortLinkServiceImpl provider;
-  private static String userEmail;
+  @Inject
+  private ShortLinkServiceImpl provider;
+  @Inject
+  private BigTable bigTable;
 
-  @BeforeAll
-  public static void initProvider() {
-    userEmail = "test_user@mail.com";
-    provider = new ShortLinkServiceImpl();
 
-    provider.saveLink(
-      "user3@mail.com",
-      "https://darcs.realworldhaskell.org/static/00book.pdf",
-      "book"
-    );
+  private static final String userEmail = "test_user@mail.com";
+
+  @BeforeEach
+  public void cleanup() {
+    Path path = bigTable.getDir(DataFolder.Links);
+    try {
+      Files.walk(path).forEach((p) -> {
+        try {
+          if (!path.equals(p)) {
+            Files.delete(p);
+          }
+        } catch (IOException exception) {
+          exception.printStackTrace();
+        }
+      });
+    } catch (IOException exception) {
+      exception.printStackTrace();
+    }
   }
 
   @Test
@@ -62,6 +84,11 @@ public class ShortLinkServiceTest {
   public void shouldNotSaveExistentAlias() {
     String existentAlias = "book";
     String url = "http://genhis.philol.msu.ru/article_35.shtml";
+    provider.saveLink(
+      "user3@mail.com",
+      "https://darcs.realworldhaskell.org/static/00book.pdf",
+      "book"
+    );
 
     assertThatThrownBy(() -> provider.saveLink(userEmail, url, existentAlias))
       .isInstanceOf(InvalidUrlException.class);
@@ -109,21 +136,19 @@ public class ShortLinkServiceTest {
       "https://commons.wikimedia.org/wiki/File:Chestnut-tailed_starling_-_%E0%A6%95%E0%A6%BE%E0%A6%A0_%E0%A6%B6%E0%A6%BE%E0%A6%B2%E0%A6%BF%E0%A6%95.jpg",
       "birds"
     );
-
-    assertThat(provider.getLinksByUserEmail("user1@mail.com")).isEqualTo(
-      Arrays.asList(
-        new ShortLinkMock(
-          "character",
-          "user1@mail.com",
-          new URL("https://en.wikipedia.org/wiki/Kakashi_Hatake")
-        ),
-        new ShortLinkMock(
-          linkWithRandomAlias.shortLink(),
-          "user1@mail.com",
-          new URL("https://github.com/metarhia/metasql")
-        )
-      )
+    var test1 = new ShortLinkMock(
+      "character",
+      "user1@mail.com",
+      new URL("https://en.wikipedia.org/wiki/Kakashi_Hatake")
     );
+    var test2 =new ShortLinkMock(
+      linkWithRandomAlias.shortLink(),
+      "user1@mail.com",
+      new URL("https://github.com/metarhia/metasql")
+    );
+    ArrayList<ShortLinkMock> resp = provider.getLinksByUserEmail("user1@mail.com");
+    assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test1.userEmail()))).isTrue();
+    assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test2.userEmail()))).isTrue();
   }
 
   @Test

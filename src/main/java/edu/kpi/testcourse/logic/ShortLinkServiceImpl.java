@@ -1,12 +1,15 @@
 package edu.kpi.testcourse.logic;
 
 import edu.kpi.testcourse.exception.InvalidUrlException;
+import edu.kpi.testcourse.repository.LinkRepository;
+import edu.kpi.testcourse.repository.LinkRepositoryImpl;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -20,7 +23,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   public static final String SHORT_LINK_BEGINNING = "http://localhost:8080/r/";
   public static final String ALIAS_PATTERN = "[0-9a-zA-Z]+";
 
-  private final ArrayList<ShortLinkMock> mockData = new ArrayList<>();
+  @Inject
+  private LinkRepository linkRepo;
 
   /**
    * Retrieve "long version" of link by short link.
@@ -29,18 +33,10 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * @return Optional - "long link" if it had been found in the storage
    */
   public Optional<URL> getDestinationByShortLink(String shortLink) {
-    /*
-    Temporary implementation.
-    Future correct implementation:
-    return this.linkRepo.findByShortLink(shortLink).destination;
-     */
-    for (ShortLinkMock link : mockData) {
-      // System.out.println(link);
-      if (link.shortLink().equals(shortLink)) {
-        return Optional.of(link.destination());
-      }
-    }
-    return Optional.empty();
+    Optional<ShortLinkMock> resp = linkRepo.findByShortLink(shortLink);
+    return resp.isPresent()
+       ? Optional.of(resp.get().destination())
+       : Optional.empty();
   }
 
   /**
@@ -51,12 +47,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * @return if a link has been returned
    */
   public boolean deleteLinkIfBelongsToUser(String email, String shortLink) {
-    /*
-    Temporary implementation.
-     */
-    return mockData.removeIf(
-      link -> link.userEmail().equals(email) && link.shortLink().equals(shortLink)
-    );
+    return linkRepo.deleteLink(email, shortLink);
   }
 
   /**
@@ -66,12 +57,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * @return list of user's links
    */
   public ArrayList<ShortLinkMock> getLinksByUserEmail(String email) {
-    /*
-    Temporary implementation
-     */
-    return mockData.stream()
-      .filter(link -> link.userEmail().equals(email))
-      .collect(Collectors.toCollection(ArrayList::new));
+    return linkRepo.getLinksOfUser(email);
   }
 
   /**
@@ -163,8 +149,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
         alias = this.generateAlias();
       }
       ShortLinkMock link = new ShortLinkMock(alias, userEmail, destinationLink.get());
-      // temporary implementation
-      this.mockData.add(link);
+
+      linkRepo.saveLink(link);
 
       return link;
     }
@@ -189,8 +175,8 @@ public class ShortLinkServiceImpl implements ShortLinkService {
       throw new InvalidUrlException("Desired alias is not alphanumeric string");
     } else {
       ShortLinkMock link = new ShortLinkMock(alias, userEmail, destinationLink.get());
-      // temporary implementation
-      this.mockData.add(link);
+
+      linkRepo.saveLink(link);
 
       return link;
     }
