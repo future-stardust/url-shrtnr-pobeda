@@ -118,18 +118,16 @@ public class ShortenLinkTest {
       )
     );
 
-    assertDoesNotThrow(() -> {
-      String body = client.toBlocking().retrieve(
-        HttpRequest.POST(
-          "/urls/shorten",
-          requestBody
-        ).header("token", TEST_VALID_TOKEN)
-      );
+    String body = client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody
+      ).header("token", TEST_VALID_TOKEN)
+    );
 
-      Object parsedBody = g.fromJson(body, Object.class);
+    Object parsedBody = g.fromJson(body, Object.class);
 
-      assertThat(parsedBody).hasFieldOrProperty("shortened_url");
-    });
+    assertThat(parsedBody).hasFieldOrProperty("shortened_url");
   }
 
   @Test
@@ -165,16 +163,14 @@ public class ShortenLinkTest {
       )
     );
 
-    assertDoesNotThrow(() -> {
-      String body = client.toBlocking().retrieve(
-        HttpRequest.POST(
-          "/urls/shorten",
-          requestBody
-        ).header("token", TEST_VALID_TOKEN)
-      );
+    String body = client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody
+      ).header("token", TEST_VALID_TOKEN)
+    );
 
-      assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
-    });
+    assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
 
     // clear all links in 'links' directory
     // temporary solution before we configure our data storage properly

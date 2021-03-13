@@ -86,22 +86,27 @@ public class RedirectLinkTest {
 
   @Test
   public void registeredShouldRedirect() {
-    /* assertDoesNotThrow(() -> {
+    assertDoesNotThrow(() -> {
       String withAliasBody2 = client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", new ShortLink(
-          "haskell2",
-          "user1@mail.com",
-          new URL("https://darcs.realworldhaskell.org/static/00book.pdf")
-        )).header("token", TEST_VALID_TOKEN)
+        HttpRequest.POST(
+          "/urls/shorten",
+          g.toJson(
+            new ShortLink(
+              "haskell2",
+              "user1@mail.com",
+              "https://darcs.realworldhaskell.org/static/00book.pdf"
+            )
+          )
+        ).header("token", TEST_VALID_TOKEN)
       );
       String customAlias2 = getShortenedUrlFromResponseBody(withAliasBody2);
 
-    String responseBody = client.toBlocking()
+    /*String responseBody = client.toBlocking()
       .retrieve(
         HttpRequest.GET("/r/haskell2")
           .header("token", TEST_VALID_TOKEN)
       );*/
-    // });
+    });
   }
 
   @Test
