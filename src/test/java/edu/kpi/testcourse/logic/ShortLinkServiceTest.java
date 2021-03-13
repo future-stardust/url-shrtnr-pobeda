@@ -115,8 +115,8 @@ public class ShortLinkServiceTest {
       "https://en.wikipedia.org/wiki/Al-Ahsa_Oasis"
     );
 
-    assertThat(provider.getDestinationByShortLink(shortLink.shortLink()).get())
-      .isEqualTo(shortLink.destination());
+    assertThat(provider.getDestinationByShortLink(shortLink.alias()).get())
+      .isEqualTo(shortLink.url());
   }
 
   @Test
@@ -141,13 +141,13 @@ public class ShortLinkServiceTest {
       new URL("https://en.wikipedia.org/wiki/Kakashi_Hatake")
     );
     var test2 =new ShortLink(
-      linkWithRandomAlias.shortLink(),
+      linkWithRandomAlias.alias(),
       "user1@mail.com",
       new URL("https://github.com/metarhia/metasql")
     );
     ArrayList<ShortLink> resp = provider.getLinksByUserEmail("user1@mail.com");
-    assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test1.userEmail()))).isTrue();
-    assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test2.userEmail()))).isTrue();
+    assertThat(resp.stream().anyMatch((s) -> s.email().equals(test1.email()))).isTrue();
+    assertThat(resp.stream().anyMatch((s) -> s.email().equals(test2.email()))).isTrue();
   }
 
   @Test
@@ -169,7 +169,7 @@ public class ShortLinkServiceTest {
 
     // delete all urls of user1@mail.com
     provider.deleteLinkIfBelongsToUser("user1@mail.com", "sof");
-    provider.deleteLinkIfBelongsToUser("user1@mail.com", shortLinkRandomAlias.shortLink());
+    provider.deleteLinkIfBelongsToUser("user1@mail.com", shortLinkRandomAlias.alias());
 
     assertThat(provider.getLinksByUserEmail("user1@mail.com")).isEmpty();
   }

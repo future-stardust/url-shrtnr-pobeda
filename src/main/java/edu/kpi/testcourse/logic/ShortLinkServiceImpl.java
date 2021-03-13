@@ -34,7 +34,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   public Optional<URL> getDestinationByShortLink(String shortLink) {
     Optional<ShortLink> resp = linkRepo.findByShortLink(shortLink);
     return resp.isPresent()
-       ? Optional.of(resp.get().destination())
+       ? Optional.of(resp.get().url())
        : Optional.empty();
   }
 

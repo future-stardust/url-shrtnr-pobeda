@@ -81,13 +81,13 @@ public class BigTableManagerImpl implements BigTableManager {
         return null;
       })
       .filter(Objects::nonNull)
-      .filter((s) -> s.userEmail().equals(email))
+      .filter((s) -> s.email().equals(email))
       .collect(Collectors.toCollection(ArrayList::new));
   }
 
   @Override
   public void storeLink(ShortLink link) throws IOException {
     String json = Main.getGson().toJson(link);
-    bigTable.store(link.shortLink(), json, DataFolder.Links);
+    bigTable.store(link.alias(), json, DataFolder.Links);
   }
 }

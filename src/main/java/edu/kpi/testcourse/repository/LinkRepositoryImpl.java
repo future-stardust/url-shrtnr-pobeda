@@ -48,7 +48,7 @@ public class LinkRepositoryImpl implements LinkRepository {
       if (link.isEmpty()) {
         return false;
       }
-      if (link.get().userEmail().equals(email)) {
+      if (link.get().email().equals(email)) {
         bigTableManager.deleteLink(shortLink);
         return true;
       } else {
