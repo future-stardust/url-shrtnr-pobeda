@@ -1,8 +1,8 @@
 package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.Main;
-import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.dto.User;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
