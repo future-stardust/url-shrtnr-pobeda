@@ -1,6 +1,6 @@
 package edu.kpi.testcourse.auth;
 
-import edu.kpi.testcourse.exception.UnauthorizedException;
+import edu.kpi.testcourse.exception.user.UnauthorizedException;
 import java.util.HashMap;
 import javax.inject.Singleton;
 

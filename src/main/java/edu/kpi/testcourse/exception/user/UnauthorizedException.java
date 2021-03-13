@@ -1,4 +1,4 @@
-package edu.kpi.testcourse.exception;
+package edu.kpi.testcourse.exception.user;
 
 /**
  * Throw this exception if a JWT token is invalid or not provided.

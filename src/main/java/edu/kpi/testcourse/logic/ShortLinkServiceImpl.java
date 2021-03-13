@@ -1,7 +1,7 @@
 package edu.kpi.testcourse.logic;
 
 import edu.kpi.testcourse.dto.ShortLink;
-import edu.kpi.testcourse.exception.InvalidUrlException;
+import edu.kpi.testcourse.exception.url.InvalidUrlException;
 import edu.kpi.testcourse.repository.LinkRepository;
 import java.net.MalformedURLException;
 import java.net.URL;

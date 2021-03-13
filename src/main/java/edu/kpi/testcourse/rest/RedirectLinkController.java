@@ -1,9 +1,8 @@
 package edu.kpi.testcourse.rest;
 
-import edu.kpi.testcourse.exception.ShortLinkNotFoundException;
+import edu.kpi.testcourse.exception.url.ShortLinkNotFoundException;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;

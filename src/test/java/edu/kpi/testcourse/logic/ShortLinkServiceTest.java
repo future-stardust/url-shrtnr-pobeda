@@ -3,7 +3,7 @@ package edu.kpi.testcourse.logic;
 import edu.kpi.testcourse.bigtable.BigTable;
 import edu.kpi.testcourse.bigtable.DataFolder;
 import edu.kpi.testcourse.dto.ShortLink;
-import edu.kpi.testcourse.exception.InvalidUrlException;
+import edu.kpi.testcourse.exception.url.InvalidUrlException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
 import java.net.MalformedURLException;
