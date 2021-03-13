@@ -1,14 +1,16 @@
 package edu.kpi.testcourse.dto;
 
+import io.micronaut.core.annotation.Introspected;
 import java.net.URL;
 
 /**
  * Mock data for short link record in the data storage.
  */
+@Introspected
 public final class ShortLink {
-  private String shortLink;
+  private String alias;
   private String email;
-  private URL destination;
+  private URL url;
 
   /**
    * Default constructor.
@@ -18,9 +20,9 @@ public final class ShortLink {
    * @param destination llink
    */
   public ShortLink(String shortLink, String email, URL destination) {
-    this.shortLink = shortLink;
+    this.alias = shortLink;
     this.email = email;
-    this.destination = destination;
+    this.url = destination;
   }
 
   /**
@@ -28,8 +30,8 @@ public final class ShortLink {
    *
    * @return shortLink
    */
-  public String shortLink() {
-    return shortLink;
+  public String alias() {
+    return alias;
   }
 
   /**
@@ -37,7 +39,7 @@ public final class ShortLink {
    *
    * @return email
    */
-  public String userEmail() {
+  public String email() {
     return email;
   }
 
@@ -46,7 +48,7 @@ public final class ShortLink {
    *
    * @return destination
    */
-  public URL destination() {
-    return destination;
+  public URL url() {
+    return url;
   }
 }
