@@ -5,7 +5,7 @@ import java.net.URL;
 /**
  * Mock data for short link record in the data storage.
  */
-public class ShortLink {
+public final class ShortLink {
   private String shortLink;
   private String email;
   private URL destination;
