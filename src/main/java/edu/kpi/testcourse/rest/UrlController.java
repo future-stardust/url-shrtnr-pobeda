@@ -2,7 +2,7 @@ package edu.kpi.testcourse.rest;
 
 import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.auth.AuthorizationMockServiceImpl;
-import edu.kpi.testcourse.logic.ShortLinkMock;
+import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpResponse;
@@ -46,7 +46,7 @@ public class UrlController {
    * Standard response body for GET /urls.
    */
   @Introspected
-  public record UserUrls(ArrayList<ShortLinkMock> urls) {}
+  public record UserUrls(ArrayList<ShortLink> urls) {}
 
   /**
    * Authorized user cen shorten an URL on this route.
@@ -61,7 +61,7 @@ public class UrlController {
   public String shortenUrl(@Header("token") String token, @Body UserUrl urlToShorten) {
     String email = this.authorizationMockService.authorizeUser(token);
 
-    ShortLinkMock shortLink;
+    ShortLink shortLink;
 
     if (urlToShorten.alias() != null) {
       shortLink = this.shortLinkService.saveLink(

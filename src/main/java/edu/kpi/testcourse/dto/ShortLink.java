@@ -1,11 +1,11 @@
-package edu.kpi.testcourse.logic;
+package edu.kpi.testcourse.dto;
 
 import java.net.URL;
 
 /**
  * Mock data for short link record in the data storage.
  */
-public class ShortLinkMock {
+public class ShortLink {
   private String shortLink;
   private String email;
   private URL destination;
@@ -17,7 +17,7 @@ public class ShortLinkMock {
    * @param email user's
    * @param destination llink
    */
-  public ShortLinkMock(String shortLink, String email, URL destination) {
+  public ShortLink(String shortLink, String email, URL destination) {
     this.shortLink = shortLink;
     this.email = email;
     this.destination = destination;

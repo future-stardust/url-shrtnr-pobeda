@@ -1,5 +1,6 @@
 package edu.kpi.testcourse.logic;
 
+import edu.kpi.testcourse.dto.ShortLink;
 import java.net.URL;
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public interface ShortLinkService {
 
   Optional<URL> safelyCreateUrl(String destination);
 
-  ShortLinkMock saveLink(String userEmail, String destination);
+  ShortLink saveLink(String userEmail, String destination);
 
-  ShortLinkMock saveLink(String userEmail, String destination, String alias);
+  ShortLink saveLink(String userEmail, String destination, String alias);
 }

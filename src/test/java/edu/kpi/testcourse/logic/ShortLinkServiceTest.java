@@ -2,6 +2,7 @@ package edu.kpi.testcourse.logic;
 
 import edu.kpi.testcourse.bigtable.BigTable;
 import edu.kpi.testcourse.bigtable.DataFolder;
+import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.exception.InvalidUrlException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
@@ -10,9 +11,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -111,7 +110,7 @@ public class ShortLinkServiceTest {
 
   @Test
   public void shouldRetrieveSavedLinks() {
-    ShortLinkMock shortLink = provider.saveLink(
+    ShortLink shortLink = provider.saveLink(
       "user3@mail.com",
       "https://en.wikipedia.org/wiki/Al-Ahsa_Oasis"
     );
@@ -127,7 +126,7 @@ public class ShortLinkServiceTest {
       "https://en.wikipedia.org/wiki/Kakashi_Hatake",
       "character"
     );
-    ShortLinkMock linkWithRandomAlias = provider.saveLink(
+    ShortLink linkWithRandomAlias = provider.saveLink(
       "user1@mail.com",
       "https://github.com/metarhia/metasql"
     );
@@ -136,17 +135,17 @@ public class ShortLinkServiceTest {
       "https://commons.wikimedia.org/wiki/File:Chestnut-tailed_starling_-_%E0%A6%95%E0%A6%BE%E0%A6%A0_%E0%A6%B6%E0%A6%BE%E0%A6%B2%E0%A6%BF%E0%A6%95.jpg",
       "birds"
     );
-    var test1 = new ShortLinkMock(
+    var test1 = new ShortLink(
       "character",
       "user1@mail.com",
       new URL("https://en.wikipedia.org/wiki/Kakashi_Hatake")
     );
-    var test2 =new ShortLinkMock(
+    var test2 =new ShortLink(
       linkWithRandomAlias.shortLink(),
       "user1@mail.com",
       new URL("https://github.com/metarhia/metasql")
     );
-    ArrayList<ShortLinkMock> resp = provider.getLinksByUserEmail("user1@mail.com");
+    ArrayList<ShortLink> resp = provider.getLinksByUserEmail("user1@mail.com");
     assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test1.userEmail()))).isTrue();
     assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test2.userEmail()))).isTrue();
   }
@@ -158,7 +157,7 @@ public class ShortLinkServiceTest {
       "https://stackoverflow.com/questions/31079081/programmatically-navigate-using-react-router",
       "sof"
     );
-    ShortLinkMock shortLinkRandomAlias = provider.saveLink(
+    ShortLink shortLinkRandomAlias = provider.saveLink(
       "user1@mail.com",
       "https://en.wikipedia.org/wiki/Chestnut-tailed_starling"
     );

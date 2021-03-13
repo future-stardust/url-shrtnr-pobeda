@@ -3,7 +3,7 @@ package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.dto.User;
-import edu.kpi.testcourse.logic.ShortLinkMock;
+import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,17 +27,17 @@ public class BigTableManagerTest {
   private BigTableManagerImpl bigTableManager;
 
   private static User testUser;
-  private static ShortLinkMock shortLink;
+  private static ShortLink shortLink;
   private static String testUserJson;
   private static String shortLinkJson;
 
   @BeforeAll
   public static void init() throws MalformedURLException {
     testUser = new User("testMail", "testPass");
-    shortLink = new ShortLinkMock("testShort", "testMail",
+    shortLink = new ShortLink("testShort", "testMail",
       new URL("https://google.com"));
     testUserJson = Main.getGson().toJson(testUser, User.class);
-    shortLinkJson = Main.getGson().toJson(shortLink, ShortLinkMock.class);
+    shortLinkJson = Main.getGson().toJson(shortLink, ShortLink.class);
   }
 
   @BeforeEach
@@ -102,9 +102,9 @@ public class BigTableManagerTest {
   public void managerFindsAllLinksOfUser() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ArrayList<ShortLinkMock> list = bigTableManager.listAllUserLinks(shortLink.userEmail());
+      ArrayList<ShortLink> list = bigTableManager.listAllUserLinks(shortLink.userEmail());
       assertEquals(1, list.size());
-      ShortLinkMock resp = list.get(0);
+      ShortLink resp = list.get(0);
       assertEquals(shortLink.userEmail(), resp.userEmail());
       assertEquals(shortLink.shortLink(), resp.shortLink());
       assertEquals(shortLink.destination(), resp.destination());
@@ -121,7 +121,7 @@ public class BigTableManagerTest {
   public void managerFindsShortLinkByAlias() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ShortLinkMock resp = bigTableManager.findShortLink(shortLink.shortLink()).get();
+      ShortLink resp = bigTableManager.findShortLink(shortLink.shortLink()).get();
       assertEquals(shortLink.userEmail(), resp.userEmail());
       assertEquals(shortLink.shortLink(), resp.shortLink());
       assertEquals(shortLink.destination(), resp.destination());
