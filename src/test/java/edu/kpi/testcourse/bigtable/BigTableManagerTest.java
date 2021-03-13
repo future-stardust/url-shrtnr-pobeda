@@ -34,8 +34,7 @@ public class BigTableManagerTest {
   @BeforeAll
   public static void init() throws MalformedURLException {
     testUser = new User("testMail", "testPass");
-    shortLink = new ShortLink("testShort", "testMail",
-      new URL("https://google.com"));
+    shortLink = new ShortLink("testShort", "testMail","https://google.com");
     testUserJson = Main.getGson().toJson(testUser, User.class);
     shortLinkJson = Main.getGson().toJson(shortLink, ShortLink.class);
   }

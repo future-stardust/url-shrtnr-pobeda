@@ -31,7 +31,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * @param shortLink short link
    * @return Optional - "long link" if it had been found in the storage
    */
-  public Optional<URL> getDestinationByShortLink(String shortLink) {
+  public Optional<String> getDestinationByShortLink(String shortLink) {
     Optional<ShortLink> resp = linkRepo.findByShortLink(shortLink);
     return resp.isPresent()
        ? Optional.of(resp.get().url())
@@ -110,11 +110,10 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    * @param destination URL that should be validated
    * @return URL if it can be created
    */
-  public Optional<URL> safelyCreateUrl(String destination) {
-    try {
-      URL url = new URL(destination);
-      return Optional.of(url);
-    } catch (MalformedURLException e) {
+  public Optional<String> safelyCreateUrl(String destination) {
+    if (destination.startsWith("http://") || destination.startsWith("https://")) {
+      return Optional.of(destination);
+    } else {
       return Optional.empty();
     }
   }
@@ -138,7 +137,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    */
   public ShortLink saveLink(String userEmail, String destination)
       throws InvalidUrlException {
-    Optional<URL> destinationLink = this.safelyCreateUrl(destination);
+    Optional<String> destinationLink = this.safelyCreateUrl(destination);
 
     if (destinationLink.isEmpty()) {
       throw new InvalidUrlException("Provided url is not valid http or https url");
@@ -164,7 +163,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    */
   public ShortLink saveLink(String userEmail, String destination, String alias)
       throws InvalidUrlException {
-    Optional<URL> destinationLink = this.safelyCreateUrl(destination);
+    Optional<String> destinationLink = this.safelyCreateUrl(destination);
 
     if (destinationLink.isEmpty()) {
       throw new InvalidUrlException("Provided url is not valid http or https url");

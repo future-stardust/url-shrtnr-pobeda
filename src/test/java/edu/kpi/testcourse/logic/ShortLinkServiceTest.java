@@ -138,12 +138,12 @@ public class ShortLinkServiceTest {
     var test1 = new ShortLink(
       "character",
       "user1@mail.com",
-      new URL("https://en.wikipedia.org/wiki/Kakashi_Hatake")
+      "https://en.wikipedia.org/wiki/Kakashi_Hatake"
     );
     var test2 =new ShortLink(
       linkWithRandomAlias.alias(),
       "user1@mail.com",
-      new URL("https://github.com/metarhia/metasql")
+      "https://github.com/metarhia/metasql"
     );
     ArrayList<ShortLink> resp = provider.getLinksByUserEmail("user1@mail.com");
     assertThat(resp.stream().anyMatch((s) -> s.email().equals(test1.email()))).isTrue();

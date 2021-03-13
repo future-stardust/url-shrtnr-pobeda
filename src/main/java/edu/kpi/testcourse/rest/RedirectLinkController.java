@@ -46,12 +46,12 @@ public class RedirectLinkController {
   @Get("/{link}")
   public HttpResponse<String> redirectByLink(@NotNull String link)
       throws URISyntaxException {
-    Optional<URL> redirectUrl = shortLinkService.getDestinationByShortLink(link);
+    Optional<String> redirectUrl = shortLinkService.getDestinationByShortLink(link);
 
     if (redirectUrl.isEmpty()) {
       throw new ShortLinkNotFoundException();
     } else {
-      URI location = new URI(redirectUrl.get().toExternalForm());
+      URI location = new URI(redirectUrl.get());
 
       return HttpResponse.redirect(location);
     }

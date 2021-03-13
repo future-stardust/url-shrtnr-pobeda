@@ -65,17 +65,16 @@ public class UrlController {
     if (urlToShorten.alias() != null) {
       shortLink = this.shortLinkService.saveLink(
         email,
-        urlToShorten.url().toString(),
+        urlToShorten.url(),
         urlToShorten.alias()
       );
     } else {
       shortLink = this.shortLinkService.saveLink(
         email,
-        urlToShorten.url().toString()
+        urlToShorten.url()
       );
     }
     String fullShortLink = ShortLinkServiceImpl.createFullLink(shortLink.alias());
-    System.out.println(fullShortLink);
 
     return Main.getGson().toJson(Collections.singletonMap("shortened_url", fullShortLink));
   }

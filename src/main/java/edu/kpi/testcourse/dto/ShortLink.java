@@ -10,19 +10,19 @@ import java.net.URL;
 public final class ShortLink {
   private String alias;
   private String email;
-  private URL url;
+  private String url;
 
   /**
    * Default constructor.
    *
-   * @param shortLink alias
-   * @param email user's
-   * @param destination llink
+   * @param alias alias for a "long" link
+   * @param email user's email
+   * @param url link to shorten
    */
-  public ShortLink(String shortLink, String email, URL destination) {
-    this.alias = shortLink;
+  public ShortLink(String alias, String email, String url) {
+    this.alias = alias;
     this.email = email;
-    this.url = destination;
+    this.url = url;
   }
 
   /**
@@ -48,7 +48,7 @@ public final class ShortLink {
    *
    * @return destination
    */
-  public URL url() {
+  public String url() {
     return url;
   }
 }

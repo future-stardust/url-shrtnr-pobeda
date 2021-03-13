@@ -7,7 +7,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
-import java.net.URL;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@MicronautTest
 public class ShortenLinkTest {
 
   private static final String TEST_VALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTY0NjczMDczOCwia"
@@ -49,10 +50,18 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithoutToken() {
+    String requestBody = g.toJson(
+      new ShortLink(
+        null,
+        null,
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+      )
+    );
+
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", "")
+        HttpRequest.POST("/urls/shorten", requestBody)
       )
     );
 
@@ -61,10 +70,18 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithBadToken() {
+    String requestBody = g.toJson(
+      new ShortLink(
+        null,
+        null,
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+      )
+    );
+
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", "").header("token", "bad-token")
+        HttpRequest.POST("/urls/shorten", requestBody).header("token", "bad-token")
       )
     );
 
@@ -73,10 +90,12 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithEmptyBody() {
+    String requestBody = "";
+
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", "").header("token", TEST_VALID_TOKEN)
+        HttpRequest.POST("/urls/shorten", requestBody).header("token", TEST_VALID_TOKEN)
       )
     );
 
@@ -85,13 +104,20 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldSaveValidUrl() {
+    String requestBody = g.toJson(
+      new ShortLink(
+        null,
+        null,
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+      )
+    );
+
     assertDoesNotThrow(() -> {
       String body = client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", new ShortLink(
-          null,
-          null,
-          new URL("https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/")
-        )).header("token", TEST_VALID_TOKEN)
+        HttpRequest.POST(
+          "/urls/shorten",
+          requestBody
+        ).header("token", TEST_VALID_TOKEN)
       );
 
       Object parsedBody = g.fromJson(body, Object.class);
@@ -102,14 +128,21 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldNotSaveInvalidUrl() {
+    String requestBody = g.toJson(
+      new ShortLink(
+        null,
+        null,
+        "ht/devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+      )
+    );
+
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-      HttpRequest.POST("/urls/shorten", new ShortLink(
-        null,
-        null,
-        new URL("ht/devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/")
-      )).header("token", TEST_VALID_TOKEN)
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody
+      ).header("token", TEST_VALID_TOKEN)
       )
     );
 
@@ -118,15 +151,20 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldSaveWithAlias() {
-    String alias = "alias";
+    String requestBody = g.toJson(
+      new ShortLink(
+        "alias",
+        null,
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+      )
+    );
 
     assertDoesNotThrow(() -> {
       String body = client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", new ShortLink(
-          alias,
-          null,
-          new URL("https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/")
-        )).header("token", TEST_VALID_TOKEN)
+        HttpRequest.POST(
+          "/urls/shorten",
+          requestBody
+        ).header("token", TEST_VALID_TOKEN)
       );
 
       assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
