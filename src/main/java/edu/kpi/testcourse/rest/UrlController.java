@@ -35,18 +35,6 @@ public class UrlController {
   @Inject
   AuthorizationMockServiceImpl authorizationMockService;
 
-  // /**
-  //  * Standard request body for POST /url/shorten.
-  //  */
-  // @Introspected
-  // public record UserUrl(String url, String alias) {}
-
-  // /**
-  //  * Standard response body for GET /urls.
-  //  */
-  // @Introspected
-  // public record UserUrls(ArrayList<ShortLink> urls) {}
-
   /**
    * Authorized user cen shorten an URL on this route.
    *
