@@ -3,12 +3,10 @@ package edu.kpi.testcourse.rest;
 import com.google.gson.Gson;
 import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import java.net.URL;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -47,11 +45,16 @@ public class RedirectLinkTest {
       System.out.println(url1);
 
       String noAliasBody = client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", g.toJson(new ShortLink(
-          null,
-          null,
-          url1
-        ))).header("token", TEST_VALID_TOKEN)
+        HttpRequest.POST(
+          "/urls/shorten",
+          g.toJson(
+            new ShortLink(
+              null,
+              null,
+              url1
+            )
+          )
+        ).header("token", TEST_VALID_TOKEN)
       );
       String withAliasBody = client.toBlocking().retrieve(
         HttpRequest.POST(

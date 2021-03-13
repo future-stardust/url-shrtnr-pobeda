@@ -6,8 +6,6 @@ import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.exception.url.InvalidUrlException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -25,7 +23,6 @@ public class ShortLinkServiceTest {
   private ShortLinkServiceImpl provider;
   @Inject
   private BigTable bigTable;
-
 
   private static final String userEmail = "test_user@mail.com";
 
@@ -92,7 +89,7 @@ public class ShortLinkServiceTest {
     assertThatThrownBy(() -> provider.saveLink(userEmail, url, existentAlias))
       .isInstanceOf(InvalidUrlException.class);
 
-    assertThat(provider.getDestinationByShortLink(existentAlias).get().toString())
+    assertThat(provider.getDestinationByShortLink(existentAlias).get())
       .isEqualTo("https://darcs.realworldhaskell.org/static/00book.pdf");
   }
 
@@ -120,7 +117,7 @@ public class ShortLinkServiceTest {
   }
 
   @Test
-  public void shouldRetrieveCorrectUrlsByUsersEmail() throws MalformedURLException {
+  public void shouldRetrieveCorrectUrlsByUsersEmail() {
     provider.saveLink(
       "user1@mail.com",
       "https://en.wikipedia.org/wiki/Kakashi_Hatake",
