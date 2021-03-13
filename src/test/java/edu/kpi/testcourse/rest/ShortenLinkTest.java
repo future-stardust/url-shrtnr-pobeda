@@ -91,7 +91,7 @@ public class ShortenLinkTest {
       )
     );
 
-    assertEquals(400, e.getStatus().getCode());
+    assertEquals(401, e.getStatus().getCode());
   }
 
   @Test
