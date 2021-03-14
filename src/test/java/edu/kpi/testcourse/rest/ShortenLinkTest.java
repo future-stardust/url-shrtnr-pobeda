@@ -52,6 +52,18 @@ public class ShortenLinkTest {
     if (client != null) {
       client.stop();
     }
+
+    // clear all links in 'links' directory
+    // temporary solution before we configure our data storage properly
+    assertDoesNotThrow(() -> {
+      Path linksPath = Paths.get("data/links/");
+
+      try (Stream<Path> walk = Files.walk(linksPath)) {
+        walk.sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+      }
+    });
   }
 
   @Test
@@ -171,17 +183,5 @@ public class ShortenLinkTest {
     );
 
     assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
-
-    // clear all links in 'links' directory
-    // temporary solution before we configure our data storage properly
-    assertDoesNotThrow(() -> {
-      Path linksPath = Paths.get("data/links/");
-
-      try (Stream<Path> walk = Files.walk(linksPath)) {
-        walk.sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
-      }
-    });
   }
 }

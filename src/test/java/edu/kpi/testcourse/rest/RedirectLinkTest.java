@@ -1,5 +1,7 @@
 package edu.kpi.testcourse.rest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import com.google.gson.Gson;
 import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.context.ApplicationContext;
@@ -7,6 +9,12 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -77,6 +85,18 @@ public class RedirectLinkTest {
     if (client != null) {
       client.stop();
     }
+
+    // clear all links in 'links' directory
+    // temporary solution before we configure our data storage properly
+    assertDoesNotThrow(() -> {
+      Path linksPath = Paths.get("data/links/");
+
+      try (Stream<Path> walk = Files.walk(linksPath)) {
+        walk.sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+      }
+    });
   }
 
   @Test
