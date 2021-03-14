@@ -10,7 +10,6 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
 public class RedirectLinkTest {
@@ -38,40 +37,36 @@ public class RedirectLinkTest {
       .getApplicationContext()
       .createBean(HttpClient.class, server.getURL());
 
-    assertDoesNotThrow(() -> {
-      String url1 = "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/";
-      String url2 = "https://darcs.realworldhaskell.org/static/00book.pdf";
+    String url1 = "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/";
+    String url2 = "https://darcs.realworldhaskell.org/static/00book.pdf";
 
-      System.out.println(url1);
-
-      String noAliasBody = client.toBlocking().retrieve(
-        HttpRequest.POST(
-          "/urls/shorten",
-          g.toJson(
-            new ShortLink(
-              null,
-              null,
-              url1
-            )
+    String noAliasBody = client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        g.toJson(
+          new ShortLink(
+            null,
+            null,
+            url1
           )
-        ).header("token", TEST_VALID_TOKEN)
-      );
-      String withAliasBody = client.toBlocking().retrieve(
-        HttpRequest.POST(
-          "/urls/shorten",
-          g.toJson(
-            new ShortLink(
-              "haskell",
-              "user1@mail.com",
-              url2
-            )
+        )
+      ).header("token", TEST_VALID_TOKEN)
+    );
+    String withAliasBody = client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        g.toJson(
+          new ShortLink(
+            "haskell",
+            "user1@mail.com",
+            url2
           )
-        ).header("token", TEST_VALID_TOKEN)
-      );
+        )
+      ).header("token", TEST_VALID_TOKEN)
+    );
 
-      randomAlias = getShortenedUrlFromResponseBody(noAliasBody);
-      customAlias = getShortenedUrlFromResponseBody(withAliasBody);
-    });
+    randomAlias = getShortenedUrlFromResponseBody(noAliasBody);
+    customAlias = getShortenedUrlFromResponseBody(withAliasBody);
   }
 
   @AfterAll
@@ -86,27 +81,25 @@ public class RedirectLinkTest {
 
   @Test
   public void registeredShouldRedirect() {
-    assertDoesNotThrow(() -> {
-      String withAliasBody2 = client.toBlocking().retrieve(
-        HttpRequest.POST(
-          "/urls/shorten",
-          g.toJson(
-            new ShortLink(
-              "haskell2",
-              "user1@mail.com",
-              "https://darcs.realworldhaskell.org/static/00book.pdf"
-            )
+    String withAliasBody2 = client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        g.toJson(
+          new ShortLink(
+            "haskell2",
+            "user1@mail.com",
+            "https://darcs.realworldhaskell.org/static/00book.pdf"
           )
-        ).header("token", TEST_VALID_TOKEN)
-      );
-      String customAlias2 = getShortenedUrlFromResponseBody(withAliasBody2);
+        )
+      ).header("token", TEST_VALID_TOKEN)
+    );
+    String customAlias2 = getShortenedUrlFromResponseBody(withAliasBody2);
 
-    /*String responseBody = client.toBlocking()
-      .retrieve(
-        HttpRequest.GET("/r/haskell2")
-          .header("token", TEST_VALID_TOKEN)
-      );*/
-    });
+    /* String responseBody = client.toBlocking()
+    .retrieve(
+      HttpRequest.GET("/r/haskell2")
+        .header("token", TEST_VALID_TOKEN)
+    );*/
   }
 
   @Test
