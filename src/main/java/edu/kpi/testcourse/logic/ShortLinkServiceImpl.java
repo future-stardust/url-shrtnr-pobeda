@@ -3,6 +3,9 @@ package edu.kpi.testcourse.logic;
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.exception.url.InvalidUrlException;
 import edu.kpi.testcourse.repository.LinkRepository;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
@@ -103,16 +106,17 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   }
 
   /**
-   * Create an URL if it's valid.
+   * Check validity of URL.
    *
    * @param destination URL that should be validated
-   * @return URL if it can be created
+   * @return is a 'destination' parameter a valid URL
    */
-  public Optional<String> safelyCreateUrl(String destination) {
-    if (destination.startsWith("http://") || destination.startsWith("https://")) {
-      return Optional.of(destination);
-    } else {
-      return Optional.empty();
+  public boolean isUrlValid(String destination) {
+    try {
+      new URL(destination).toURI();
+      return true;
+    } catch (MalformedURLException | URISyntaxException e) {
+      return false;
     }
   }
 
@@ -135,20 +139,19 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    */
   public ShortLink saveLink(String userEmail, String destination)
       throws InvalidUrlException {
-    Optional<String> destinationLink = this.safelyCreateUrl(destination);
 
-    if (destinationLink.isEmpty()) {
-      throw new InvalidUrlException("Provided url is not valid http or https url");
-    } else {
+    if (this.isUrlValid(destination)) {
       String alias = this.generateAlias();
       while (this.getDestinationByShortLink(alias).isPresent()) {
         alias = this.generateAlias();
       }
-      ShortLink link = new ShortLink(alias, userEmail, destinationLink.get());
+      ShortLink link = new ShortLink(alias, userEmail, destination);
 
       linkRepo.saveLink(link);
 
       return link;
+    } else {
+      throw new InvalidUrlException("Provided url is not valid http or https url");
     }
   }
 
@@ -161,16 +164,15 @@ public class ShortLinkServiceImpl implements ShortLinkService {
    */
   public ShortLink saveLink(String userEmail, String destination, String alias)
       throws InvalidUrlException {
-    Optional<String> destinationLink = this.safelyCreateUrl(destination);
 
-    if (destinationLink.isEmpty()) {
+    if (!this.isUrlValid(destination)) {
       throw new InvalidUrlException("Provided url is not valid http or https url");
     } else if (this.isAliasAlreadyUsed(alias)) {
       throw new InvalidUrlException("Desired alias is already taken");
     } else if (!this.isAliasAlphanumeric(alias)) {
       throw new InvalidUrlException("Desired alias is not alphanumeric string");
     } else {
-      ShortLink link = new ShortLink(alias, userEmail, destinationLink.get());
+      ShortLink link = new ShortLink(alias, userEmail, destination);
 
       linkRepo.saveLink(link);
 

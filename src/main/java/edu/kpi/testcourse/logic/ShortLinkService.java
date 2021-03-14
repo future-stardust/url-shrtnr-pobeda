@@ -12,7 +12,7 @@ public interface ShortLinkService {
 
   String generateAlias();
 
-  Optional<String> safelyCreateUrl(String destination);
+  boolean isUrlValid(String destination);
 
   ShortLink saveLink(String userEmail, String destination);
 
