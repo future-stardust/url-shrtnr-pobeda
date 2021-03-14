@@ -36,7 +36,7 @@ public class UrlController {
   AuthorizationMockServiceImpl authorizationMockService;
 
   /**
-   * Authorized user cen shorten an URL on this route.
+   * Authorized user can shorten a URL on this route.
    *
    * @param token - bearer auth JWT token to check if user is authorized.
    * @param urlToShorten - URL with unnecessary alias that must be shortened.
