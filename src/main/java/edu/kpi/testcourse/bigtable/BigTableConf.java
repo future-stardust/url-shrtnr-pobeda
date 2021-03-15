@@ -14,6 +14,15 @@ public final class BigTableConf {
 
   /**
    * Simple constructor.
+   *
+   * @param path to storage
+   */
+  public BigTableConf(Path path) {
+    storagePath = path;
+  }
+
+  /**
+   * Simple constructor.
    * Converts String path to Path object.
    *
    * @param path to storage
@@ -21,6 +30,7 @@ public final class BigTableConf {
   public BigTableConf(String path) {
     storagePath = Paths.get(path);
   }
+
 
   /**
    * Getter for main storage path.
