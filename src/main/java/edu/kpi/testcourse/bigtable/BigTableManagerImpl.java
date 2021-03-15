@@ -74,7 +74,9 @@ public class BigTableManagerImpl implements BigTableManager {
     return Files.walk(path)
       .map((p) -> {
         try {
-          return Main.getGson().fromJson(Files.readString(p), ShortLink.class);
+          if (!Files.isDirectory(p)) {
+            return Main.getGson().fromJson(Files.readString(p), ShortLink.class);
+          }
         } catch (IOException exception) {
           exception.printStackTrace();
         }
