@@ -5,19 +5,23 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import javax.annotation.Nullable;
 import javax.inject.Singleton;
 
-// Please, pay attention, that you should not use any 3rd party persistence library (e.g. data
-// base, implementation of key-value storage, etc)
-
+/**
+ * Basic class for basic operations with file system.
+ */
 @Singleton
 public class BigTableImpl implements BigTable {
 
   private final BigTableConf conf;
 
+  /**
+   * Constructor, now uses conf file.
+   *
+   * @param conf configuration
+   */
   public BigTableImpl(BigTableConf conf) {
     this.conf = conf;
 
@@ -37,13 +41,16 @@ public class BigTableImpl implements BigTable {
   }
 
   @Override
-  public void store(String name, String value, DataFolder folder) throws IOException {
-    Path path = conf.storage();
+  public void store(String name, String value, @Nullable DataFolder folder) throws IOException {
+    Path path;
     if (folder == DataFolder.Links) {
-      path = conf.links();
+      path = conf.links().resolve(name);
     } else if (folder == DataFolder.Users) {
-      path = conf.users();
+      path = conf.users().resolve(name);
+    } else {
+      path = conf.storage().resolve(name);
     }
+
     if (Files.exists(path)) {
       throw new FileAlreadyExistsException(
         String.format("%s already exists", path.getFileName().toString()));
@@ -52,13 +59,16 @@ public class BigTableImpl implements BigTable {
   }
 
   @Override
-  public String read(String name, DataFolder folder) throws IOException {
-    Path path = conf.storage();
+  public String read(String name, @Nullable DataFolder folder) throws IOException {
+    Path path;
     if (folder == DataFolder.Links) {
-      path = conf.links();
+      path = conf.links().resolve(name);
     } else if (folder == DataFolder.Users) {
-      path = conf.users();
+      path = conf.users().resolve(name);
+    } else {
+      path = conf.storage().resolve(name);
     }
+
     if (!Files.exists(path)) {
       throw new FileNotFoundException(
         String.format("%s does not exist", path.getFileName().toString()));
@@ -67,13 +77,16 @@ public class BigTableImpl implements BigTable {
   }
 
   @Override
-  public void delete(String name, DataFolder folder) throws IOException {
-    Path path = conf.storage();
+  public void delete(String name, @Nullable DataFolder folder) throws IOException {
+    Path path;
     if (folder == DataFolder.Links) {
-      path = conf.links();
+      path = conf.links().resolve(name);
     } else if (folder == DataFolder.Users) {
-      path = conf.users();
+      path = conf.users().resolve(name);
+    } else {
+      path = conf.storage().resolve(name);
     }
+
     if (Files.exists(path)) {
       Files.delete(path);
     } else {
