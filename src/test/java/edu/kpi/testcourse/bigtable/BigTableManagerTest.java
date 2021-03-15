@@ -6,55 +6,40 @@ import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Optional;
 import javax.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.assertj.core.api.Fail;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
 public class BigTableManagerTest {
 
   @Inject
-  private BigTableImpl bigTable;
+  private BigTable bigTable;
   @Inject
   private BigTableManagerImpl bigTableManager;
 
-  private static User testUser;
-  private static ShortLink shortLink;
-  private static String testUserJson;
-  private static String shortLinkJson;
+  private final User testUser = new User("testMail", "testPass");
+  private final ShortLink shortLink = new ShortLink("testShort", "testMail", "https://google.com");
+  private final String testUserJson = Main.getGson().toJson(testUser, User.class);
+  private final String shortLinkJson = Main.getGson().toJson(shortLink, ShortLink.class);
 
-  @BeforeAll
-  public static void init() throws MalformedURLException {
-    testUser = new User("testMail", "testPass");
-    shortLink = new ShortLink("testShort", "testMail","https://google.com");
-    testUserJson = Main.getGson().toJson(testUser, User.class);
-    shortLinkJson = Main.getGson().toJson(shortLink, ShortLink.class);
-  }
-
-  @BeforeEach
+  @AfterEach
   public void cleanup() {
-    if (Files.exists(Paths.get(bigTable.getDir(DataFolder.Users).toString(), testUser.email()))) {
-      try {
+    try {
+      if (Files.exists(bigTable.getDir(DataFolder.Users).resolve(testUser.email()))) {
         bigTable.delete(testUser.email(), DataFolder.Users);
-      } catch (IOException exception) {
-        exception.printStackTrace();
       }
-    }
-    if (Files.exists(Paths.get(bigTable.getDir(DataFolder.Links).toString(),
-      shortLink.alias()))) {
-      try {
+      if (Files.exists(bigTable.getDir(DataFolder.Links).resolve(shortLink.alias()))) {
         bigTable.delete(shortLink.alias(), DataFolder.Links);
-      } catch (IOException exception) {
-        exception.printStackTrace();
       }
+    } catch (IOException exception) {
+      throw new RuntimeException(exception);
     }
   }
 
@@ -92,9 +77,8 @@ public class BigTableManagerTest {
   @Test
   public void managerStoresLink() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
-    assertDoesNotThrow(() -> {
-      assertEquals(shortLinkJson, bigTable.read(shortLink.alias(), DataFolder.Links));
-    });
+    assertDoesNotThrow(
+      () -> assertEquals(shortLinkJson, bigTable.read(shortLink.alias(), DataFolder.Links)));
   }
 
   @Test
@@ -120,7 +104,11 @@ public class BigTableManagerTest {
   public void managerFindsShortLinkByAlias() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ShortLink resp = bigTableManager.findShortLink(shortLink.alias()).get();
+      Optional<ShortLink> respOpt = bigTableManager.findShortLink(shortLink.alias());
+      if (respOpt.isEmpty()) {
+        fail();
+      }
+      ShortLink resp = respOpt.get();
       assertEquals(shortLink.email(), resp.email());
       assertEquals(shortLink.alias(), resp.alias());
       assertEquals(shortLink.url(), resp.url());
@@ -129,8 +117,7 @@ public class BigTableManagerTest {
 
   @Test
   public void returnsEmptyWhenLinkDoesNotExist() {
-    assertDoesNotThrow(() -> {
-      assertEquals(Optional.empty(), bigTableManager.findShortLink(shortLink.alias()));
-    });
+    assertDoesNotThrow(
+      () -> assertEquals(Optional.empty(), bigTableManager.findShortLink(shortLink.alias())));
   }
 }
