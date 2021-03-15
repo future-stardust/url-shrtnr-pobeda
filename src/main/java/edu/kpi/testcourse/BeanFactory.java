@@ -22,7 +22,7 @@ public class BeanFactory {
   private static final String PATH_TO_STORAGE_WINDOWS =
       System.getenv("appdata") + "\\url-shrtnr-pobeda";
   private static final String PATH_TO_STORAGE_LINUX =
-      System.getProperty("user.home") + "/url-shrtnr-pobeda";
+      System.getProperty("user.home") + "/.url-shrtnr-pobeda";
 
 
   @Requires(notEnv = "test")
