@@ -1,8 +1,8 @@
 package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.Main;
+import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.dto.User;
-import edu.kpi.testcourse.logic.ShortLinkMock;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,11 +53,11 @@ public class BigTableManagerImpl implements BigTableManager {
   }
 
   @Override
-  public Optional<ShortLinkMock> findShortLink(String shortLink) throws IOException {
+  public Optional<ShortLink> findShortLink(String shortLink) throws IOException {
     Path dataFolder = bigTable.getDir(DataFolder.Links);
     if (Files.exists(Path.of(dataFolder.toString(), shortLink))) {
       return Optional.of(Main.getGson().fromJson(bigTable.read(shortLink, DataFolder.Links),
-        ShortLinkMock.class));
+        ShortLink.class));
     } else {
       return Optional.empty();
     }
@@ -69,25 +69,25 @@ public class BigTableManagerImpl implements BigTableManager {
   }
 
   @Override
-  public ArrayList<ShortLinkMock> listAllUserLinks(String email) throws IOException {
+  public ArrayList<ShortLink> listAllUserLinks(String email) throws IOException {
     Path path = bigTable.getDir(DataFolder.Links);
     return Files.walk(path)
       .map((p) -> {
         try {
-          return Main.getGson().fromJson(Files.readString(p), ShortLinkMock.class);
+          return Main.getGson().fromJson(Files.readString(p), ShortLink.class);
         } catch (IOException exception) {
           exception.printStackTrace();
         }
         return null;
       })
       .filter(Objects::nonNull)
-      .filter((s) -> s.userEmail().equals(email))
+      .filter((s) -> s.email().equals(email))
       .collect(Collectors.toCollection(ArrayList::new));
   }
 
   @Override
-  public void storeLink(ShortLinkMock link) throws IOException {
+  public void storeLink(ShortLink link) throws IOException {
     String json = Main.getGson().toJson(link);
-    bigTable.store(link.shortLink(), json, DataFolder.Links);
+    bigTable.store(link.alias(), json, DataFolder.Links);
   }
 }

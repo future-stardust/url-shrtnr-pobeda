@@ -2,17 +2,14 @@ package edu.kpi.testcourse.logic;
 
 import edu.kpi.testcourse.bigtable.BigTable;
 import edu.kpi.testcourse.bigtable.DataFolder;
-import edu.kpi.testcourse.exception.InvalidUrlException;
+import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.exception.url.InvalidUrlException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +23,6 @@ public class ShortLinkServiceTest {
   private ShortLinkServiceImpl provider;
   @Inject
   private BigTable bigTable;
-
 
   private static final String userEmail = "test_user@mail.com";
 
@@ -93,7 +89,7 @@ public class ShortLinkServiceTest {
     assertThatThrownBy(() -> provider.saveLink(userEmail, url, existentAlias))
       .isInstanceOf(InvalidUrlException.class);
 
-    assertThat(provider.getDestinationByShortLink(existentAlias).get().toString())
+    assertThat(provider.getDestinationByShortLink(existentAlias).get())
       .isEqualTo("https://darcs.realworldhaskell.org/static/00book.pdf");
   }
 
@@ -111,23 +107,23 @@ public class ShortLinkServiceTest {
 
   @Test
   public void shouldRetrieveSavedLinks() {
-    ShortLinkMock shortLink = provider.saveLink(
+    ShortLink shortLink = provider.saveLink(
       "user3@mail.com",
       "https://en.wikipedia.org/wiki/Al-Ahsa_Oasis"
     );
 
-    assertThat(provider.getDestinationByShortLink(shortLink.shortLink()).get())
-      .isEqualTo(shortLink.destination());
+    assertThat(provider.getDestinationByShortLink(shortLink.alias()).get())
+      .isEqualTo(shortLink.url());
   }
 
   @Test
-  public void shouldRetrieveCorrectUrlsByUsersEmail() throws MalformedURLException {
+  public void shouldRetrieveCorrectUrlsByUsersEmail() {
     provider.saveLink(
       "user1@mail.com",
       "https://en.wikipedia.org/wiki/Kakashi_Hatake",
       "character"
     );
-    ShortLinkMock linkWithRandomAlias = provider.saveLink(
+    ShortLink linkWithRandomAlias = provider.saveLink(
       "user1@mail.com",
       "https://github.com/metarhia/metasql"
     );
@@ -136,19 +132,19 @@ public class ShortLinkServiceTest {
       "https://commons.wikimedia.org/wiki/File:Chestnut-tailed_starling_-_%E0%A6%95%E0%A6%BE%E0%A6%A0_%E0%A6%B6%E0%A6%BE%E0%A6%B2%E0%A6%BF%E0%A6%95.jpg",
       "birds"
     );
-    var test1 = new ShortLinkMock(
+    var test1 = new ShortLink(
       "character",
       "user1@mail.com",
-      new URL("https://en.wikipedia.org/wiki/Kakashi_Hatake")
+      "https://en.wikipedia.org/wiki/Kakashi_Hatake"
     );
-    var test2 =new ShortLinkMock(
-      linkWithRandomAlias.shortLink(),
+    var test2 =new ShortLink(
+      linkWithRandomAlias.alias(),
       "user1@mail.com",
-      new URL("https://github.com/metarhia/metasql")
+      "https://github.com/metarhia/metasql"
     );
-    ArrayList<ShortLinkMock> resp = provider.getLinksByUserEmail("user1@mail.com");
-    assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test1.userEmail()))).isTrue();
-    assertThat(resp.stream().anyMatch((s) -> s.userEmail().equals(test2.userEmail()))).isTrue();
+    ArrayList<ShortLink> resp = provider.getLinksByUserEmail("user1@mail.com");
+    assertThat(resp.stream().anyMatch((s) -> s.email().equals(test1.email()))).isTrue();
+    assertThat(resp.stream().anyMatch((s) -> s.email().equals(test2.email()))).isTrue();
   }
 
   @Test
@@ -158,7 +154,7 @@ public class ShortLinkServiceTest {
       "https://stackoverflow.com/questions/31079081/programmatically-navigate-using-react-router",
       "sof"
     );
-    ShortLinkMock shortLinkRandomAlias = provider.saveLink(
+    ShortLink shortLinkRandomAlias = provider.saveLink(
       "user1@mail.com",
       "https://en.wikipedia.org/wiki/Chestnut-tailed_starling"
     );
@@ -170,7 +166,7 @@ public class ShortLinkServiceTest {
 
     // delete all urls of user1@mail.com
     provider.deleteLinkIfBelongsToUser("user1@mail.com", "sof");
-    provider.deleteLinkIfBelongsToUser("user1@mail.com", shortLinkRandomAlias.shortLink());
+    provider.deleteLinkIfBelongsToUser("user1@mail.com", shortLinkRandomAlias.alias());
 
     assertThat(provider.getLinksByUserEmail("user1@mail.com")).isEmpty();
   }

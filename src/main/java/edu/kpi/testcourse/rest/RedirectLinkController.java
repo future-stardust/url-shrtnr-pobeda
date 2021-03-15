@@ -1,9 +1,8 @@
 package edu.kpi.testcourse.rest;
 
-import edu.kpi.testcourse.exception.ShortLinkNotFoundException;
+import edu.kpi.testcourse.exception.url.ShortLinkNotFoundException;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -47,12 +46,12 @@ public class RedirectLinkController {
   @Get("/{link}")
   public HttpResponse<String> redirectByLink(@NotNull String link)
       throws URISyntaxException {
-    Optional<URL> redirectUrl = shortLinkService.getDestinationByShortLink(link);
+    Optional<String> redirectUrl = shortLinkService.getDestinationByShortLink(link);
 
     if (redirectUrl.isEmpty()) {
       throw new ShortLinkNotFoundException();
     } else {
-      URI location = new URI(redirectUrl.get().toExternalForm());
+      URI location = new URI(redirectUrl.get());
 
       return HttpResponse.redirect(location);
     }

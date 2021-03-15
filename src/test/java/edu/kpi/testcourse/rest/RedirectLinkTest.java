@@ -1,16 +1,25 @@
 package edu.kpi.testcourse.rest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import com.google.gson.Gson;
-import edu.kpi.testcourse.rest.UrlController.UserUrl;
+import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.context.ApplicationContext;
-import io.micronaut.core.annotation.Introspected;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+@MicronautTest
 public class RedirectLinkTest {
   private static final String TEST_VALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTY0NjczMDczOCwia"
     + "WF0IjoxNjE1MTk0NzM4fQ.SYb7CJl3Gx0AyeHcRGR6jWr6Gbxg0m8b7V2ZhynrYuY";
@@ -24,14 +33,9 @@ public class RedirectLinkTest {
   private static HttpClient client;
   private static final Gson g = new Gson();
 
-  @Introspected
-  private static class ShortenedUrlResponse {
-    public String shortened_url;
-  }
-
   private static String getShortenedUrlFromResponseBody(String body) {
-    ShortenedUrlResponse parsed = g.fromJson(body, ShortenedUrlResponse.class);
-    return parsed.shortened_url;
+    ShortLink parsed = g.fromJson(body, ShortLink.class);
+    return parsed.alias();
   }
 
   @BeforeAll
@@ -41,17 +45,32 @@ public class RedirectLinkTest {
       .getApplicationContext()
       .createBean(HttpClient.class, server.getURL());
 
+    String url1 = "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/";
+    String url2 = "https://darcs.realworldhaskell.org/static/00book.pdf";
+
     String noAliasBody = client.toBlocking().retrieve(
-      HttpRequest.POST("/urls/shorten", new UserUrl(
-        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/",
-        null
-      )).header("token", TEST_VALID_TOKEN)
+      HttpRequest.POST(
+        "/urls/shorten",
+        g.toJson(
+          new ShortLink(
+            null,
+            null,
+            url1
+          )
+        )
+      ).header("token", TEST_VALID_TOKEN)
     );
     String withAliasBody = client.toBlocking().retrieve(
-      HttpRequest.POST("/urls/shorten", new UserUrl(
-        "https://darcs.realworldhaskell.org/static/00book.pdf",
-        "haskell"
-      )).header("token", TEST_VALID_TOKEN)
+      HttpRequest.POST(
+        "/urls/shorten",
+        g.toJson(
+          new ShortLink(
+            "haskell",
+            "user1@mail.com",
+            url2
+          )
+        )
+      ).header("token", TEST_VALID_TOKEN)
     );
 
     randomAlias = getShortenedUrlFromResponseBody(noAliasBody);
@@ -66,23 +85,41 @@ public class RedirectLinkTest {
     if (client != null) {
       client.stop();
     }
+
+    // clear all links in 'links' directory
+    // temporary solution before we configure our data storage properly
+    assertDoesNotThrow(() -> {
+      Path linksPath = Paths.get("data/links/");
+
+      try (Stream<Path> walk = Files.walk(linksPath)) {
+        walk.sorted(Comparator.reverseOrder())
+          .map(Path::toFile)
+          .forEach(File::delete);
+      }
+    });
   }
 
   @Test
   public void registeredShouldRedirect() {
     String withAliasBody2 = client.toBlocking().retrieve(
-      HttpRequest.POST("/urls/shorten", new UserUrl(
-        "https://darcs.realworldhaskell.org/static/00book.pdf",
-        "haskell2"
-      )).header("token", TEST_VALID_TOKEN)
+      HttpRequest.POST(
+        "/urls/shorten",
+        g.toJson(
+          new ShortLink(
+            "haskell2",
+            "user1@mail.com",
+            "https://darcs.realworldhaskell.org/static/00book.pdf"
+          )
+        )
+      ).header("token", TEST_VALID_TOKEN)
     );
     String customAlias2 = getShortenedUrlFromResponseBody(withAliasBody2);
 
     /* String responseBody = client.toBlocking()
-      .retrieve(
-        HttpRequest.GET("/r/haskell2")
-          .header("token", TEST_VALID_TOKEN)
-      );*/
+    .retrieve(
+      HttpRequest.GET("/r/haskell2")
+        .header("token", TEST_VALID_TOKEN)
+    );*/
   }
 
   @Test

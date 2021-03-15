@@ -1,10 +1,11 @@
 package edu.kpi.testcourse.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.micronaut.core.annotation.Introspected;
 
 /**
  * Dto for User.
  */
+@Introspected
 public final class User {
 
   private String email;

@@ -1,4 +1,4 @@
-package edu.kpi.testcourse.exception;
+package edu.kpi.testcourse.exception.url;
 
 /**
  * Throw this exception if an alias was not found in the data storage.

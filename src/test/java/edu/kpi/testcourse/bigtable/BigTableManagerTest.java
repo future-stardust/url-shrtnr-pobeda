@@ -3,7 +3,7 @@ package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.dto.User;
-import edu.kpi.testcourse.logic.ShortLinkMock;
+import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,17 +27,16 @@ public class BigTableManagerTest {
   private BigTableManagerImpl bigTableManager;
 
   private static User testUser;
-  private static ShortLinkMock shortLink;
+  private static ShortLink shortLink;
   private static String testUserJson;
   private static String shortLinkJson;
 
   @BeforeAll
   public static void init() throws MalformedURLException {
     testUser = new User("testMail", "testPass");
-    shortLink = new ShortLinkMock("testShort", "testMail",
-      new URL("https://google.com"));
+    shortLink = new ShortLink("testShort", "testMail","https://google.com");
     testUserJson = Main.getGson().toJson(testUser, User.class);
-    shortLinkJson = Main.getGson().toJson(shortLink, ShortLinkMock.class);
+    shortLinkJson = Main.getGson().toJson(shortLink, ShortLink.class);
   }
 
   @BeforeEach
@@ -50,9 +49,9 @@ public class BigTableManagerTest {
       }
     }
     if (Files.exists(Paths.get(bigTable.getDir(DataFolder.Links).toString(),
-      shortLink.shortLink()))) {
+      shortLink.alias()))) {
       try {
-        bigTable.delete(shortLink.shortLink(), DataFolder.Links);
+        bigTable.delete(shortLink.alias(), DataFolder.Links);
       } catch (IOException exception) {
         exception.printStackTrace();
       }
@@ -94,7 +93,7 @@ public class BigTableManagerTest {
   public void managerStoresLink() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      assertEquals(shortLinkJson, bigTable.read(shortLink.shortLink(), DataFolder.Links));
+      assertEquals(shortLinkJson, bigTable.read(shortLink.alias(), DataFolder.Links));
     });
   }
 
@@ -102,36 +101,36 @@ public class BigTableManagerTest {
   public void managerFindsAllLinksOfUser() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ArrayList<ShortLinkMock> list = bigTableManager.listAllUserLinks(shortLink.userEmail());
+      ArrayList<ShortLink> list = bigTableManager.listAllUserLinks(shortLink.email());
       assertEquals(1, list.size());
-      ShortLinkMock resp = list.get(0);
-      assertEquals(shortLink.userEmail(), resp.userEmail());
-      assertEquals(shortLink.shortLink(), resp.shortLink());
-      assertEquals(shortLink.destination(), resp.destination());
+      ShortLink resp = list.get(0);
+      assertEquals(shortLink.email(), resp.email());
+      assertEquals(shortLink.alias(), resp.alias());
+      assertEquals(shortLink.url(), resp.url());
     });
   }
 
   @Test
   public void managerDeletesLink() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
-    assertDoesNotThrow(() -> bigTableManager.deleteLink(shortLink.shortLink()));
+    assertDoesNotThrow(() -> bigTableManager.deleteLink(shortLink.alias()));
   }
 
   @Test
   public void managerFindsShortLinkByAlias() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ShortLinkMock resp = bigTableManager.findShortLink(shortLink.shortLink()).get();
-      assertEquals(shortLink.userEmail(), resp.userEmail());
-      assertEquals(shortLink.shortLink(), resp.shortLink());
-      assertEquals(shortLink.destination(), resp.destination());
+      ShortLink resp = bigTableManager.findShortLink(shortLink.alias()).get();
+      assertEquals(shortLink.email(), resp.email());
+      assertEquals(shortLink.alias(), resp.alias());
+      assertEquals(shortLink.url(), resp.url());
     });
   }
 
   @Test
   public void returnsEmptyWhenLinkDoesNotExist() {
     assertDoesNotThrow(() -> {
-      assertEquals(Optional.empty(), bigTableManager.findShortLink(shortLink.shortLink()));
+      assertEquals(Optional.empty(), bigTableManager.findShortLink(shortLink.alias()));
     });
   }
 }

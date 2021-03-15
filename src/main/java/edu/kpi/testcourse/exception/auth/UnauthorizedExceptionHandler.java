@@ -1,4 +1,4 @@
-package edu.kpi.testcourse.exception;
+package edu.kpi.testcourse.exception.auth;
 
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.http.HttpRequest;
