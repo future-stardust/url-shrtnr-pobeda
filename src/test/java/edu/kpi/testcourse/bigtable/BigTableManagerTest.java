@@ -1,17 +1,17 @@
 package edu.kpi.testcourse.bigtable;
 
-
-import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonTool;
+import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Optional;
 import javax.inject.Inject;
-import org.assertj.core.api.Fail;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,10 +24,17 @@ public class BigTableManagerTest {
   @Inject
   private BigTableManagerImpl bigTableManager;
 
-  private final User testUser = new User("testMail", "testPass");
-  private final ShortLink shortLink = new ShortLink("testShort", "testMail", "https://google.com");
-  private final String testUserJson = Main.getGson().toJson(testUser, User.class);
-  private final String shortLinkJson = Main.getGson().toJson(shortLink, ShortLink.class);
+  private static final User testUser = new User("testMail", "testPass");
+  private static final ShortLink shortLink = new ShortLink("testShort", "testMail", "https://google.com");
+  private static String testUserJson;
+  private static String shortLinkJson;
+
+  @BeforeAll
+  public static void init() {
+    JsonTool jsonTool = new JsonToolJacksonImpl();
+    testUserJson = jsonTool.toJson(testUser);
+    shortLinkJson = jsonTool.toJson(shortLink);
+  }
 
   @AfterEach
   public void cleanup() {

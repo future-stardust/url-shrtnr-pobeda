@@ -1,8 +1,8 @@
 package edu.kpi.testcourse.bigtable;
 
-import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.dto.User;
+import edu.kpi.testcourse.helper.JsonTool;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,34 +21,23 @@ public class BigTableManagerImpl implements BigTableManager {
 
   @Inject
   private BigTable bigTable;
+  @Inject
+  private JsonTool jsonTool;
 
-  /**
-   * Finds user in stored data.
-   *
-   * @param email to search
-   * @return Optional of User
-   * @throws IOException when email hasn't found
-   */
   @Override
   public Optional<User> findEmail(String email) throws IOException {
     Path dataFolder = bigTable.getDir(DataFolder.Users);
     if (Files.exists(Path.of(dataFolder.toString(), email))) {
-      return Optional.of(Main.getGson().fromJson(bigTable.read(email, DataFolder.Users),
+      return Optional.of(jsonTool.fromJson(bigTable.read(email, DataFolder.Users),
         User.class));
     } else {
       return Optional.empty();
     }
   }
 
-  /**
-   * Persists provided user's data.
-   *
-   * @param user to save
-   * @throws IOException when provided user already exists
-   */
   @Override
   public void storeUser(User user) throws IOException {
-    String json = Main.getGson().toJson(user, User.class);
+    String json = jsonTool.toJson(user);
     bigTable.store(user.email(), json, DataFolder.Users);
   }
 
@@ -56,7 +45,7 @@ public class BigTableManagerImpl implements BigTableManager {
   public Optional<ShortLink> findShortLink(String shortLink) throws IOException {
     Path dataFolder = bigTable.getDir(DataFolder.Links);
     if (Files.exists(Path.of(dataFolder.toString(), shortLink))) {
-      return Optional.of(Main.getGson().fromJson(bigTable.read(shortLink, DataFolder.Links),
+      return Optional.of(jsonTool.fromJson(bigTable.read(shortLink, DataFolder.Links),
         ShortLink.class));
     } else {
       return Optional.empty();
@@ -75,7 +64,7 @@ public class BigTableManagerImpl implements BigTableManager {
       .map((p) -> {
         try {
           if (!Files.isDirectory(p)) {
-            return Main.getGson().fromJson(Files.readString(p), ShortLink.class);
+            return jsonTool.fromJson(Files.readString(p), ShortLink.class);
           }
         } catch (IOException exception) {
           exception.printStackTrace();
@@ -89,7 +78,7 @@ public class BigTableManagerImpl implements BigTableManager {
 
   @Override
   public void storeLink(ShortLink link) throws IOException {
-    String json = Main.getGson().toJson(link);
+    String json = jsonTool.toJson(link);
     bigTable.store(link.alias(), json, DataFolder.Links);
   }
 }
