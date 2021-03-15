@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import javax.inject.Singleton;
 
+// If some beans will be in need of extensive configuration in future
+// then it should be done here
+
 /**
  * Factory for something.
  */
@@ -18,7 +21,8 @@ public class BeanFactory {
 
   private static final String PATH_TO_STORAGE_WINDOWS =
       System.getenv("appdata") + "\\url-shrtnr-pobeda";
-  private static final String PATH_TO_STORAGE_LINUX = "/var/lib/url-shrtnr-pobeda";
+  private static final String PATH_TO_STORAGE_LINUX =
+      System.getProperty("user.home") + "/url-shrtnr-pobeda";
 
 
   @Requires(notEnv = "test")
