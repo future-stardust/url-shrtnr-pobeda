@@ -1,22 +1,25 @@
 package edu.kpi.testcourse.bigtable;
 
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import javax.inject.Inject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@MicronautTest
 class BigTableImplTest {
 
-  private static BigTableImpl bigTable;
+  @Inject
+  private static BigTable bigTable;
   private static String testName;
 
   @BeforeAll
   public static void init() {
-    bigTable = new BigTableImpl();
     testName = "testName";
   }
 
@@ -28,6 +31,7 @@ class BigTableImplTest {
 
   @Test
   void fileCreationDeletionTest() {
+    System.out.println(System.getenv("appdata"));
     assertDoesNotThrow(() -> bigTable.store(testName + 1, "testValue",
       DataFolder.Links));
     assertDoesNotThrow(() -> bigTable.delete(testName + 1, DataFolder.Links));
