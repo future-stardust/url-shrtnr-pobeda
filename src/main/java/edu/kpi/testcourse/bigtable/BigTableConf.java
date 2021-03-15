@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 public final class BigTableConf {
 
   // Actual path to storage
-  public Path path;
+  private final Path storagePath;
 
   /**
    * Simple constructor.
@@ -19,7 +19,33 @@ public final class BigTableConf {
    * @param path to storage
    */
   public BigTableConf(String path) {
-    this.path = Paths.get(path);
+    storagePath = Paths.get(path);
   }
 
+  /**
+   * Getter for main storage path.
+   *
+   * @return storage folder
+   */
+  public Path storage() {
+    return storagePath;
+  }
+
+  /**
+   * Getter for urls storage path.
+   *
+   * @return links folder
+   */
+  public Path links() {
+    return storagePath.resolve("links");
+  }
+
+  /**
+   * Getter for users storage path.
+   *
+   * @return users forlder
+   */
+  public Path users() {
+    return storagePath.resolve("users");
+  }
 }
