@@ -3,9 +3,8 @@ package edu.kpi.testcourse.bigtable;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import javax.inject.Inject;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,59 +14,68 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BigTableImplTest {
 
   @Inject
-  private static BigTable bigTable;
-  private static String testName;
+  private BigTable bigTable;
 
-  @BeforeAll
-  public static void init() {
-    testName = "testName";
+  private final String testName = "testName";
+
+  @AfterEach
+  public void cleanup() {
+    try {
+      Files.walk(bigTable.getDir(null)).forEach((p) -> {
+        if (!Files.isDirectory(p)) {
+          try {
+            Files.delete(p);
+          } catch (IOException exception) {
+            throw new RuntimeException(exception);
+          }
+        }
+      });
+    } catch (IOException exception) {
+      throw new RuntimeException(exception);
+    }
   }
 
   @Test
-  void checkIfBigTableCreatedCorrectly()
-  {
-    assertTrue(Files.exists(Paths.get("data")));
+  void checkIfBigTableCreatedCorrectly() {
+    assertTrue(Files.exists(bigTable.getDir(null)));
+    assertTrue(Files.exists(bigTable.getDir(DataFolder.Links)));
+    assertTrue(Files.exists(bigTable.getDir(DataFolder.Users)));
   }
 
   @Test
   void fileCreationDeletionTest() {
     System.out.println(System.getenv("appdata"));
-    assertDoesNotThrow(() -> bigTable.store(testName + 1, "testValue",
-      DataFolder.Links));
-    assertDoesNotThrow(() -> bigTable.delete(testName + 1, DataFolder.Links));
+    assertDoesNotThrow(() -> bigTable.store(testName + 1, "testValue", null));
+    assertDoesNotThrow(() -> bigTable.delete(testName + 1, null));
   }
 
   @Test
   void valueSavingTest() {
     String testValue = "testValue";
-    assertDoesNotThrow(() -> bigTable.store(testName, testValue, DataFolder.Links));
+    assertDoesNotThrow(() -> bigTable.store(testName, testValue, null));
 
     assertDoesNotThrow(() -> {
-      String resp = bigTable.read(testName, DataFolder.Links);
+      String resp = bigTable.read(testName, null);
       assertThat(resp).isEqualTo("testValue");
     });
 
-    assertDoesNotThrow(() -> bigTable.delete(testName, DataFolder.Links));
+    assertDoesNotThrow(() -> bigTable.delete(testName, null));
   }
 
   @Test
-  void exceptionStoreFileAlreadyExistsTest()
-  {
-    assertDoesNotThrow(() -> bigTable.store(testName, "testValue", DataFolder.Links));
-    assertThrows(IOException.class, () -> bigTable.store(testName, "newTestValue",
-      DataFolder.Links));
-    assertDoesNotThrow(() -> bigTable.delete(testName, DataFolder.Links));
+  void exceptionStoreFileAlreadyExistsTest() {
+    assertDoesNotThrow(() -> bigTable.store(testName, "testValue", null));
+    assertThrows(IOException.class, () -> bigTable.store(testName, "newTestValue", null));
+    assertDoesNotThrow(() -> bigTable.delete(testName, null));
   }
 
   @Test
-  void exceptionReadFileDoesNotExist()
-  {
-    assertThrows(IOException.class, () -> bigTable.read("newTestName", DataFolder.Links));
+  void exceptionReadFileDoesNotExist() {
+    assertThrows(IOException.class, () -> bigTable.read("newTestName", null));
   }
 
   @Test
-  void exceptionDeleteFileDoesNotExist()
-  {
-    assertThrows(IOException.class, () -> bigTable.delete("newTestName", DataFolder.Links));
+  void exceptionDeleteFileDoesNotExist() {
+    assertThrows(IOException.class, () -> bigTable.delete("newTestName", null));
   }
 }
