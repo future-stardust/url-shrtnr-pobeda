@@ -44,7 +44,6 @@ class BigTableImplTest {
 
   @Test
   void fileCreationDeletionTest() {
-    System.out.println(System.getenv("appdata"));
     assertDoesNotThrow(() -> bigTable.store(testName + 1, "testValue", null));
     assertDoesNotThrow(() -> bigTable.delete(testName + 1, null));
   }
