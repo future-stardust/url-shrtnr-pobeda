@@ -1,7 +1,6 @@
 package edu.kpi.testcourse.bigtable;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Configuration object for BigTable.
@@ -20,17 +19,6 @@ public final class BigTableConf {
   public BigTableConf(Path path) {
     storagePath = path;
   }
-
-  /**
-   * Simple constructor.
-   * Converts String path to Path object.
-   *
-   * @param path to storage
-   */
-  public BigTableConf(String path) {
-    storagePath = Paths.get(path);
-  }
-
 
   /**
    * Getter for main storage path.

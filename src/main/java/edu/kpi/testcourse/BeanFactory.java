@@ -8,6 +8,8 @@ import io.micronaut.context.annotation.Primary;
 import io.micronaut.context.annotation.Requires;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.inject.Singleton;
 
 // If some beans will be in need of extensive configuration in future
@@ -19,10 +21,10 @@ import javax.inject.Singleton;
 @Factory
 public class BeanFactory {
 
-  private static final String PATH_TO_STORAGE_WINDOWS =
-      System.getenv("appdata") + "\\url-shrtnr-pobeda";
-  private static final String PATH_TO_STORAGE_LINUX =
-      System.getProperty("user.home") + "/.url-shrtnr-pobeda";
+  private static final Path PATH_TO_STORAGE_WINDOWS =
+      Paths.get(System.getenv("appdata"), "url-shrtnr-pobeda");
+  private static final Path PATH_TO_STORAGE_LINUX =
+      Paths.get(System.getProperty("user.home"), "/.url-shrtnr-pobeda");
 
 
   @Requires(notEnv = "test")
