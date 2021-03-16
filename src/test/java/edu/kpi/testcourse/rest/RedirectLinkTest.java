@@ -7,6 +7,7 @@ import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import java.util.TreeMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,15 @@ public class RedirectLinkTest {
   private static HttpClient client;
   private static final Gson g = new Gson();
 
+  /**
+   * Get shortened URL from POST /urls/shorten response.
+   *
+   * @param body { "shortened_url": "localhost:8080/r/4rT7uu6Y }
+   * @return the value of "shortened_url" field
+   */
   private static String getShortenedUrlFromResponseBody(String body) {
-    ShortLink parsed = g.fromJson(body, ShortLink.class);
-    return parsed.alias();
+    TreeMap<String, String> parsed = g.fromJson(body, TreeMap.class);
+    return parsed.get("shortened_url");
   }
 
   @BeforeAll

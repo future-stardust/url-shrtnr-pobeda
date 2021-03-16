@@ -8,6 +8,7 @@ import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import java.util.TreeMap;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,17 @@ public class ShortenLinkTest {
   private static EmbeddedServer server;
   private static HttpClient client;
   private static final Gson g = new Gson();
+
+  /**
+   * Get shortened URL from POST /urls/shorten response.
+   *
+   * @param body { "shortened_url": "localhost:8080/r/4rT7uu6Y }
+   * @return the value of "shortened_url" field
+   */
+  private static String getShortenedUrlFromResponseBody(String body) {
+    TreeMap<String, String> parsed = g.fromJson(body, TreeMap.class);
+    return parsed.get("shortened_url");
+  }
 
   @BeforeAll
   public static void setupServer() {
@@ -163,6 +175,6 @@ public class ShortenLinkTest {
       ).header("token", TEST_VALID_TOKEN)
     );
 
-    assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
+    assertThat(getShortenedUrlFromResponseBody(body)).isEqualTo("http://localhost:8080/r/alias");
   }
 }
