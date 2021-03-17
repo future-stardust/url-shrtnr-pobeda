@@ -1,8 +1,6 @@
 package edu.kpi.testcourse.repository;
 
-import edu.kpi.testcourse.bigtable.BigTable;
 import edu.kpi.testcourse.bigtable.BigTableManager;
-import edu.kpi.testcourse.bigtable.BigTableManagerImpl;
 import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.exception.bigtable.BigTableException;
 import java.io.IOException;
