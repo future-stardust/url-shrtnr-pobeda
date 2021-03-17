@@ -35,6 +35,9 @@ public class BigTableImpl implements BigTable {
       if (!Files.exists(conf.users())) {
         Files.createDirectory(conf.users());
       }
+      if (!Files.exists(conf.sessions())) {
+        Files.createDirectory(conf.sessions());
+      }
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
@@ -47,6 +50,8 @@ public class BigTableImpl implements BigTable {
       path = conf.links().resolve(name);
     } else if (folder == DataFolder.Users) {
       path = conf.users().resolve(name);
+    } else if (folder == DataFolder.Sessions) {
+      path = conf.sessions().resolve(name);
     } else {
       path = conf.storage().resolve(name);
     }
@@ -65,7 +70,9 @@ public class BigTableImpl implements BigTable {
       path = conf.links().resolve(name);
     } else if (folder == DataFolder.Users) {
       path = conf.users().resolve(name);
-    } else {
+    } else if (folder == DataFolder.Sessions) {
+      path = conf.sessions().resolve(name);
+    }else {
       path = conf.storage().resolve(name);
     }
 
@@ -83,6 +90,8 @@ public class BigTableImpl implements BigTable {
       path = conf.links().resolve(name);
     } else if (folder == DataFolder.Users) {
       path = conf.users().resolve(name);
+    } else if (folder == DataFolder.Sessions) {
+      path = conf.sessions().resolve(name);
     } else {
       path = conf.storage().resolve(name);
     }
@@ -101,6 +110,8 @@ public class BigTableImpl implements BigTable {
       return conf.links();
     } else if (folder == DataFolder.Users) {
       return conf.users();
+    } else if (folder == DataFolder.Sessions) {
+      return conf.sessions();
     }
     return conf.storage();
   }
