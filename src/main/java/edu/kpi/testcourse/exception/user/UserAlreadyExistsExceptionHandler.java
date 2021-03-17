@@ -8,6 +8,9 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import javax.inject.Singleton;
 
+/**
+ * Return BAD REQUEST if user with given email was already created.
+ */
 @Produces(MediaType.TEXT_PLAIN)
 @Singleton
 @Requires(classes = {UserAlreadyExistsException.class, ExceptionHandler.class})
