@@ -177,4 +177,95 @@ public class ShortenLinkTest {
 
     assertThat(getShortenedUrlFromResponseBody(body)).isEqualTo("http://localhost:8080/r/alias");
   }
+
+  @Test
+  public void shouldRetrieveListOfUserUrls() {
+    /* String requestBody1 = g.toJson(
+      new ShortLink(
+        "alias",
+        null,
+        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+      )
+    );
+    String requestBody2 = g.toJson(
+      new ShortLink(
+        "fb",
+        null,
+        "https://ficbook.net/readfic/9255279"
+      )
+    );
+    String requestBody3 = g.toJson(
+      new ShortLink(
+        null,
+        null,
+        "https://uk.wikipedia.org/wiki/Замикання_(програмування)"
+      )
+    );
+
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody1
+      ).header("token", TEST_VALID_TOKEN)
+    );
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody2
+      ).header("token", TEST_VALID_TOKEN)
+    );
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody3
+      ).header("token", TEST_VALID_TOKEN)
+    );
+
+    String responseBody = client.toBlocking().retrieve(
+      HttpRequest.GET(
+        "/urls"
+      ).header("token", TEST_VALID_TOKEN)
+    );*/
+  }
+
+  @Test
+  public void shouldBeAbleToDeleteAlias() {
+    String myAlias = "sth";
+    String requestBody = g.toJson(
+      new ShortLink(
+        myAlias,
+        null,
+        "https://ficbook.net/readfic/10022457/25815002?tab=1#tabContent"
+      )
+    );
+
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody
+      ).header("token", TEST_VALID_TOKEN)
+    );
+
+    // the exception is always thrown, because the DELETE /urls/{alias} response has empty body
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.DELETE("/urls/" + myAlias).header("token", TEST_VALID_TOKEN)
+      )
+    );
+    assertEquals(204, e.getStatus().getCode());
+  }
+
+  @Test
+  public void shouldNotBeAbleToDeleteNonExistentAlias() {
+    String nonExistentAlias = "nonExistentAlias";
+
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.DELETE("/urls/" + nonExistentAlias).header("token", TEST_VALID_TOKEN)
+      )
+    );
+    assertEquals(404, e.getStatus().getCode());
+  }
 }
