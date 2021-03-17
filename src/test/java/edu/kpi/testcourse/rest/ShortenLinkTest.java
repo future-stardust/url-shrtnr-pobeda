@@ -41,7 +41,9 @@ public class ShortenLinkTest {
    * @param body { "shortened_url": "localhost:8080/r/4rT7uu6Y }
    * @return the value of "shortened_url" field
    */
-  private String getShortenedUrlFromResponseBody(String body) {
+  private static String getShortenedUrlFromResponseBody(String body) {
+    JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
+
     TreeMap<String, String> parsed = jsonTool.fromJson(body, TreeMap.class);
     return parsed.get("shortened_url");
   }
@@ -167,20 +169,20 @@ public class ShortenLinkTest {
   public void shouldSaveWithAlias() {
     String requestBody = jsonTool.toJson(
       new ShortLink(
-        "alias",
+        "tsBook",
         null,
         "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
       )
     );
 
-    String body = client.toBlocking().retrieve(
+    String responseBody = client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
       ).header("token", TEST_VALID_TOKEN)
     );
 
-    assertThat(getShortenedUrlFromResponseBody(body)).isEqualTo("http://localhost:8080/r/alias");
+    assertThat(getShortenedUrlFromResponseBody(responseBody)).isEqualTo("http://localhost:8080/r/tsBook");
   }
 
   @Test
