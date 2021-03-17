@@ -1,7 +1,9 @@
 package edu.kpi.testcourse.rest;
 
 import com.google.gson.Gson;
+import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
@@ -9,11 +11,13 @@ import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.util.TreeMap;
+import javax.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -29,6 +33,9 @@ public class ShortenLinkTest {
   private static EmbeddedServer server;
   private static HttpClient client;
   private static final Gson g = new Gson();
+
+  @Inject
+  JsonToolJacksonImpl jsonTool;
 
   /**
    * Get shortened URL from POST /urls/shorten response.
@@ -180,44 +187,44 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldRetrieveListOfUserUrls() {
-    /* String requestBody1 = g.toJson(
-      new ShortLink(
-        "alias",
-        null,
-        "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
-      )
+    ShortLink requestBody1 = new ShortLink(
+      "alias",
+      null,
+      "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
     );
-    String requestBody2 = g.toJson(
-      new ShortLink(
-        "fb",
-        null,
-        "https://ficbook.net/readfic/9255279"
-      )
+    ShortLink expectedResponseBody1 = new ShortLink(
+      "alias",
+      "user1@mail.com",
+      "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
     );
-    String requestBody3 = g.toJson(
-      new ShortLink(
-        null,
-        null,
-        "https://uk.wikipedia.org/wiki/Замикання_(програмування)"
-      )
+
+    ShortLink requestBody2 = new ShortLink(
+      "fb",
+      null,
+      "https://ficbook.net/readfic/9255279"
+    );
+    ShortLink requestBody3 = new ShortLink(
+      null,
+      null,
+      "https://uk.wikipedia.org/wiki/Замикання_(програмування)"
     );
 
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
-        requestBody1
+        jsonTool.toJson(requestBody1)
       ).header("token", TEST_VALID_TOKEN)
     );
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
-        requestBody2
+        jsonTool.toJson(requestBody2)
       ).header("token", TEST_VALID_TOKEN)
     );
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
-        requestBody3
+        jsonTool.toJson(requestBody3)
       ).header("token", TEST_VALID_TOKEN)
     );
 
@@ -225,7 +232,14 @@ public class ShortenLinkTest {
       HttpRequest.GET(
         "/urls"
       ).header("token", TEST_VALID_TOKEN)
-    );*/
+    );
+
+    assertDoesNotThrow(() -> {
+      LinksOfUser parsedResponse = jsonTool.fromJson(responseBody, LinksOfUser.class);
+
+      assertEquals(3, parsedResponse.urls().size());
+      assertThat(parsedResponse.urls()).asList().contains(expectedResponseBody1);
+    });
   }
 
   @Test
