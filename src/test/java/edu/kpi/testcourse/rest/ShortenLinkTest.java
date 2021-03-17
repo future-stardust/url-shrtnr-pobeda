@@ -1,6 +1,5 @@
 package edu.kpi.testcourse.rest;
 
-import com.google.gson.Gson;
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
@@ -32,7 +31,6 @@ public class ShortenLinkTest {
 
   private static EmbeddedServer server;
   private static HttpClient client;
-  private static final Gson g = new Gson();
 
   @Inject
   JsonToolJacksonImpl jsonTool;
@@ -43,8 +41,8 @@ public class ShortenLinkTest {
    * @param body { "shortened_url": "localhost:8080/r/4rT7uu6Y }
    * @return the value of "shortened_url" field
    */
-  private static String getShortenedUrlFromResponseBody(String body) {
-    TreeMap<String, String> parsed = g.fromJson(body, TreeMap.class);
+  private String getShortenedUrlFromResponseBody(String body) {
+    TreeMap<String, String> parsed = jsonTool.fromJson(body, TreeMap.class);
     return parsed.get("shortened_url");
   }
 
@@ -68,7 +66,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithoutToken() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -88,7 +86,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithBadToken() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -122,7 +120,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldSaveValidUrl() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -137,14 +135,14 @@ public class ShortenLinkTest {
       ).header("token", TEST_VALID_TOKEN)
     );
 
-    Object parsedBody = g.fromJson(body, Object.class);
+    Object parsedBody = jsonTool.fromJson(body, Object.class);
 
     assertThat(parsedBody).hasFieldOrProperty("shortened_url");
   }
 
   @Test
   public void shouldNotSaveInvalidUrl() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -167,7 +165,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldSaveWithAlias() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         "alias",
         null,
@@ -245,7 +243,7 @@ public class ShortenLinkTest {
   @Test
   public void shouldBeAbleToDeleteAlias() {
     String myAlias = "sth";
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         myAlias,
         null,

@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.google.gson.Gson;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -39,8 +39,6 @@ public class RedirectLinkTest {
   private static EmbeddedServer server;
   private static HttpClient client;
 
-  private static final Gson g = new Gson();
-
   /**
    * Get shortened URL from POST /urls/shorten response.
    *
@@ -48,12 +46,18 @@ public class RedirectLinkTest {
    * @return the value of "shortened_url" field
    */
   private static String getShortenedUrlFromResponseBody(String body) {
-    TreeMap<String, String> parsed = g.fromJson(body, TreeMap.class);
+    JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
+
+    TreeMap<String, String> parsed = jsonTool.fromJson(body, TreeMap.class);
     return parsed.get("shortened_url");
   }
 
   @BeforeAll
   public static void setupServer() {
+    // as jsonTool can be injected but cannot be retrieved in static context,
+    // create it as local field.
+    JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
+
     server = ApplicationContext.run(EmbeddedServer.class);
     client = server
       .getApplicationContext()
@@ -65,7 +69,7 @@ public class RedirectLinkTest {
     String noAliasBody = client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
-        g.toJson(
+        jsonTool.toJson(
           new ShortLink(
             null,
             null,
@@ -77,7 +81,7 @@ public class RedirectLinkTest {
     String withAliasBody = client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
-        g.toJson(
+        jsonTool.toJson(
           new ShortLink(
             "haskell",
             "user1@mail.com",
