@@ -1,8 +1,5 @@
 package edu.kpi.testcourse.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.auth.AuthorizationMockServiceImpl;
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
@@ -71,7 +68,6 @@ public class UrlController {
     String fullShortLink = ShortLinkServiceImpl.createFullLink(shortLink.alias());
 
     return jsonTool.toJson(Collections.singletonMap("shortened_url", fullShortLink));
-    // return Main.getGson().toJson(Collections.singletonMap("shortened_url", fullShortLink));
   }
 
   /**

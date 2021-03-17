@@ -9,7 +9,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
