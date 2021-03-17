@@ -1,16 +1,27 @@
 package edu.kpi.testcourse.rest;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.google.gson.Gson;
 import edu.kpi.testcourse.dto.ShortLink;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.reactivex.subscribers.TestSubscriber;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Publisher;
 
 @MicronautTest
 public class RedirectLinkTest {
@@ -24,6 +35,7 @@ public class RedirectLinkTest {
 
   private static EmbeddedServer server;
   private static HttpClient client;
+
   private static final Gson g = new Gson();
 
   /**
@@ -88,45 +100,85 @@ public class RedirectLinkTest {
 
   @Test
   public void registeredShouldRedirect() {
-    String withAliasBody2 = client.toBlocking().retrieve(
-      HttpRequest.POST(
-        "/urls/shorten",
-        g.toJson(
-          new ShortLink(
-            "haskell2",
-            "user1@mail.com",
-            "https://darcs.realworldhaskell.org/static/00book.pdf"
-          )
-        )
-      ).header("token", TEST_VALID_TOKEN)
-    );
-    String customAlias2 = getShortenedUrlFromResponseBody(withAliasBody2);
-
-    /* String responseBody = client.toBlocking()
-    .retrieve(
-      HttpRequest.GET("/r/haskell2")
+    // Micronaut seems to have different approach in testing redirect responses
+    // then the Publisher/Subscriber contract is used in the test
+    Publisher<HttpResponse<Object>> exchange = client.exchange(
+      HttpRequest.GET("/r/haskell")
         .header("token", TEST_VALID_TOKEN)
-    );*/
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED), Object.class
+    );
+
+    TestSubscriber<HttpResponse<?>> testSubscriber = new TestSubscriber<>() {
+      @Override
+      public void onNext(HttpResponse<?> httpResponse) {
+        assertNotNull(httpResponse);
+        assertEquals(HttpStatus.MOVED_PERMANENTLY, httpResponse.status());
+      }
+    };
+
+    exchange.subscribe(testSubscriber);
+
+    // await to allow for response
+    testSubscriber.awaitTerminalEvent(2, TimeUnit.SECONDS);
   }
 
   @Test
   public void unregisteredShouldRedirect() {
-    /* String responseBody = client.toBlocking()
-      .retrieve(
-        HttpRequest.GET("/r/haskell")
-        // .header("token", TEST_VALID_TOKEN)
-      );
+    // Micronaut seems to have different approach in testing redirect responses
+    // then the Publisher/Subscriber contract is used in the test
+    Publisher<HttpResponse<Object>> exchange = client.exchange(
+      HttpRequest.GET("/r/haskell")
+        .header("token", TEST_VALID_TOKEN)
+        .contentType(MediaType.APPLICATION_FORM_URLENCODED), Object.class
+    );
 
-    System.out.println(responseBody);*/
+    TestSubscriber<HttpResponse<?>> testSubscriber = new TestSubscriber<>() {
+      @Override
+      public void onNext(HttpResponse<?> httpResponse) {
+        assertNotNull(httpResponse);
+        assertEquals(HttpStatus.MOVED_PERMANENTLY, httpResponse.status());
+      }
+    };
+
+    exchange.subscribe(testSubscriber);
+
+    // await to allow for response
+    testSubscriber.awaitTerminalEvent(2, TimeUnit.SECONDS);
   }
 
   @Test
   public void shouldNotRedirectByNonexistentLink() {
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.GET("/r/nonExistentAlias")
+      )
+    );
 
+    assertEquals(404, e.getStatus().getCode());
   }
 
   @Test
   public void shouldNotRedirectByDeletedLink() {
+    // retrieve alias from "http://localhost:8080/r/{alias}"
+    String[] shortLinkParts = randomAlias.split("/");
+    String aliasToDelete = shortLinkParts[shortLinkParts.length-1];
 
+    // the exception is always thrown, because the DELETE /urls/{alias} response has empty body
+    assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.DELETE("/urls/" + aliasToDelete).header("token", TEST_VALID_TOKEN)
+      )
+    );
+
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.GET("/r/" + aliasToDelete)
+      )
+    );
+
+    assertEquals(404, e.getStatus().getCode());
   }
 }
