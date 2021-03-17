@@ -21,8 +21,8 @@ public class UserController {
   private UserService userService;
 
   @Post(value = "/signup")
-  public HttpResponse<?> signup(@Body User user) throws SignUpException {
+  public HttpResponse<String> signup(@Body User user) throws SignUpException {
     userService.signup(user);
-    return HttpResponse.ok();
+    return HttpResponse.created("");
   }
 }
