@@ -8,18 +8,11 @@ import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -52,18 +45,6 @@ public class ShortenLinkTest {
     if (client != null) {
       client.stop();
     }
-
-    // clear all links in 'links' directory
-    // temporary solution before we configure our data storage properly
-    assertDoesNotThrow(() -> {
-      Path linksPath = Paths.get("data/links/");
-
-      try (Stream<Path> walk = Files.walk(linksPath)) {
-        walk.sorted(Comparator.reverseOrder())
-          .map(Path::toFile)
-          .forEach(File::delete);
-      }
-    });
   }
 
   @Test

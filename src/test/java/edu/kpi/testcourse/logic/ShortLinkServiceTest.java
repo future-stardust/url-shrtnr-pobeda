@@ -1,16 +1,10 @@
 package edu.kpi.testcourse.logic;
 
-import edu.kpi.testcourse.bigtable.BigTable;
-import edu.kpi.testcourse.bigtable.DataFolder;
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.exception.url.InvalidUrlException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import javax.inject.Inject;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,28 +15,8 @@ public class ShortLinkServiceTest {
 
   @Inject
   private ShortLinkServiceImpl provider;
-  @Inject
-  private BigTable bigTable;
 
   private static final String userEmail = "test_user@mail.com";
-
-  @BeforeEach
-  public void cleanup() {
-    Path path = bigTable.getDir(DataFolder.Links);
-    try {
-      Files.walk(path).forEach((p) -> {
-        try {
-          if (!path.equals(p)) {
-            Files.delete(p);
-          }
-        } catch (IOException exception) {
-          exception.printStackTrace();
-        }
-      });
-    } catch (IOException exception) {
-      exception.printStackTrace();
-    }
-  }
 
   @Test
   public void shouldProviderExist() {
