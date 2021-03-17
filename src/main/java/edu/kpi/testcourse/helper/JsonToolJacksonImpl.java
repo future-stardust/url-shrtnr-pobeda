@@ -5,10 +5,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.kpi.testcourse.exception.json.JsonParsingException;
 import java.lang.reflect.Type;
+import javax.inject.Singleton;
 
 /**
  * JSON serialization tool that uses Jackson as engine.
  */
+@Singleton
 public class JsonToolJacksonImpl implements JsonTool {
 
   private final ObjectMapper mapper = new ObjectMapper();
