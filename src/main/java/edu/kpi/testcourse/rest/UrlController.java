@@ -1,6 +1,6 @@
 package edu.kpi.testcourse.rest;
 
-import edu.kpi.testcourse.auth.AuthorizationMockService;
+import edu.kpi.testcourse.auth.AuthorizationService;
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.helper.JsonTool;
@@ -19,6 +19,7 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
+import java.security.Principal;
 import java.util.Collections;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -34,7 +35,7 @@ public class UrlController {
   ShortLinkService shortLinkService;
 
   @Inject
-  AuthorizationMockService authorizationMockService;
+  AuthorizationService authorizationService;
 
   @Inject
   JsonTool jsonTool;
@@ -42,15 +43,14 @@ public class UrlController {
   /**
    * Authorized user can shorten a URL on this route.
    *
-   * @param token - bearer auth JWT token to check if user is authorized.
    * @param urlToShorten - URL with unnecessary alias that must be shortened.
    * @return - short URL.
    */
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.TEXT_PLAIN)
   @Post("/shorten")
-  public String shortenUrl(@Header("token") String token, @Body ShortLink urlToShorten) {
-    String email = this.authorizationMockService.authorizeUser(token);
+  public String shortenUrl(Principal principal, @Body ShortLink urlToShorten) {
+    String email = principal.getName();
 
     ShortLink shortLink;
 
@@ -75,13 +75,12 @@ public class UrlController {
    * An authorized user can delete an alias created by him.
    * DELETE /urls/{alias}
    *
-   * @param token token of user
    * @param alias alias to delete
    * @return the URL has been deleted or not
    */
   @Delete("/{alias}")
-  public HttpResponse<String> deleteUrl(@Header String token, @NotNull String alias) {
-    String email = this.authorizationMockService.authorizeUser(token);
+  public HttpResponse<String> deleteUrl(Principal principal, @NotNull String alias) {
+    String email = principal.getName();
     boolean wasRemoved = this.shortLinkService.deleteLinkIfBelongsToUser(email, alias);
 
     if (!wasRemoved) {
@@ -94,12 +93,11 @@ public class UrlController {
   /**
    * Get urls that an authorized user had created.
    *
-   * @param token jwt token the user is identified by
    * @return list of urls
    */
   @Get()
-  public MutableHttpResponse<String> getUserUrls(@Header String token) {
-    String email = this.authorizationMockService.authorizeUser(token);
+  public MutableHttpResponse<String> getUserUrls(Principal principal) {
+    String email = principal.getName();
     LinksOfUser linksOfUser = new LinksOfUser(this.shortLinkService.getLinksByUserEmail(email));
 
     return HttpResponse.ok(jsonTool.toJson(linksOfUser));
