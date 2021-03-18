@@ -18,6 +18,6 @@ public class SignUpExceptionHandler implements ExceptionHandler<SignUpException,
 
   @Override
   public HttpResponse<?> handle(HttpRequest request, SignUpException exception) {
-    return HttpResponse.badRequest(exception);
+    return HttpResponse.badRequest("Failed to sign up: email or password were not provided");
   }
 }

@@ -1,18 +1,23 @@
 package edu.kpi.testcourse.rest;
 
-import com.google.gson.Gson;
+import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonTool;
+import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import java.util.TreeMap;
+import javax.inject.Inject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -27,7 +32,22 @@ public class ShortenLinkTest {
 
   private static EmbeddedServer server;
   private static HttpClient client;
-  private static final Gson g = new Gson();
+
+  @Inject
+  JsonTool jsonTool;
+
+  /**
+   * Get shortened URL from POST /urls/shorten response.
+   *
+   * @param body { "shortened_url": "localhost:8080/r/4rT7uu6Y }
+   * @return the value of "shortened_url" field
+   */
+  private static String getShortenedUrlFromResponseBody(String body) {
+    JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
+
+    TreeMap<String, String> parsed = jsonTool.fromJson(body, TreeMap.class);
+    return parsed.get("shortened_url");
+  }
 
   @BeforeAll
   public static void setupServer() {
@@ -49,7 +69,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithoutToken() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -69,7 +89,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldThrowErrorWithBadToken() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -103,7 +123,7 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldSaveValidUrl() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -118,14 +138,14 @@ public class ShortenLinkTest {
       ).header("token", TEST_VALID_TOKEN)
     );
 
-    Object parsedBody = g.fromJson(body, Object.class);
+    Object parsedBody = jsonTool.fromJson(body, Object.class);
 
     assertThat(parsedBody).hasFieldOrProperty("shortened_url");
   }
 
   @Test
   public void shouldNotSaveInvalidUrl() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
         null,
         null,
@@ -148,21 +168,119 @@ public class ShortenLinkTest {
 
   @Test
   public void shouldSaveWithAlias() {
-    String requestBody = g.toJson(
+    String requestBody = jsonTool.toJson(
       new ShortLink(
-        "alias",
+        "tsBook",
         null,
         "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
       )
     );
 
-    String body = client.toBlocking().retrieve(
+    String responseBody = client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
       ).header("token", TEST_VALID_TOKEN)
     );
 
-    assertThat(body.contains("\"shortened_url\":\"http://localhost:8080/r/alias\"")).isEqualTo(true);
+    assertThat(getShortenedUrlFromResponseBody(responseBody)).isEqualTo("http://localhost:8080/r/tsBook");
+  }
+
+  @Test
+  public void shouldRetrieveListOfUserUrls() {
+    ShortLink requestBody1 = new ShortLink(
+      "alias",
+      null,
+      "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+    );
+    ShortLink expectedResponseBody1 = new ShortLink(
+      "alias",
+      "user1@mail.com",
+      "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/"
+    );
+
+    ShortLink requestBody2 = new ShortLink(
+      "fb",
+      null,
+      "https://ficbook.net/readfic/9255279"
+    );
+    ShortLink requestBody3 = new ShortLink(
+      null,
+      null,
+      "https://uk.wikipedia.org/wiki/Замикання_(програмування)"
+    );
+
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        jsonTool.toJson(requestBody1)
+      ).header("token", TEST_VALID_TOKEN)
+    );
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        jsonTool.toJson(requestBody2)
+      ).header("token", TEST_VALID_TOKEN)
+    );
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        jsonTool.toJson(requestBody3)
+      ).header("token", TEST_VALID_TOKEN)
+    );
+
+    String responseBody = client.toBlocking().retrieve(
+      HttpRequest.GET(
+        "/urls"
+      ).header("token", TEST_VALID_TOKEN)
+    );
+
+    assertDoesNotThrow(() -> {
+      LinksOfUser parsedResponse = jsonTool.fromJson(responseBody, LinksOfUser.class);
+
+      assertEquals(3, parsedResponse.urls().size());
+      assertThat(parsedResponse.urls()).asList().contains(expectedResponseBody1);
+    });
+  }
+
+  @Test
+  public void shouldBeAbleToDeleteAlias() {
+    String myAlias = "sth";
+    String requestBody = jsonTool.toJson(
+      new ShortLink(
+        myAlias,
+        null,
+        "https://ficbook.net/readfic/10022457/25815002?tab=1#tabContent"
+      )
+    );
+
+    client.toBlocking().retrieve(
+      HttpRequest.POST(
+        "/urls/shorten",
+        requestBody
+      ).header("token", TEST_VALID_TOKEN)
+    );
+
+    // the exception is always thrown, because the DELETE /urls/{alias} response has empty body
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.DELETE("/urls/" + myAlias).header("token", TEST_VALID_TOKEN)
+      )
+    );
+    assertEquals(204, e.getStatus().getCode());
+  }
+
+  @Test
+  public void shouldNotBeAbleToDeleteNonExistentAlias() {
+    String nonExistentAlias = "nonExistentAlias";
+
+    HttpClientResponseException e = assertThrows(
+      HttpClientResponseException.class,
+      () -> client.toBlocking().retrieve(
+        HttpRequest.DELETE("/urls/" + nonExistentAlias).header("token", TEST_VALID_TOKEN)
+      )
+    );
+    assertEquals(404, e.getStatus().getCode());
   }
 }
