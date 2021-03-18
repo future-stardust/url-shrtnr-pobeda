@@ -54,15 +54,15 @@ public class AuthenticationProviderUserPassword implements AuthenticationProvide
         final Optional<User> user = userRepository.findByEmail(entryEmail);
         if (user.isPresent() && Objects.equals(entryPassword, user.get().password())) {
           final UserDetails userDetails = new UserDetails(entryEmail,
-            new ArrayList<>(Collections.singletonList("USER")));
+              new ArrayList<>(Collections.singletonList("USER")));
           emitter.onNext(userDetails);
         } else {
           emitter.onError(new AuthenticationException(
-            new AuthenticationFailed(AuthenticationFailureReason.CREDENTIALS_DO_NOT_MATCH)));
+              new AuthenticationFailed(AuthenticationFailureReason.CREDENTIALS_DO_NOT_MATCH)));
         }
       } catch (UserNotFoundException exc) {
         emitter.onError(new AuthenticationException(
-          new AuthenticationFailed(AuthenticationFailureReason.USER_NOT_FOUND)));
+            new AuthenticationFailed(AuthenticationFailureReason.USER_NOT_FOUND)));
       }
       emitter.onComplete();
     }, BackpressureStrategy.ERROR);
