@@ -1,9 +1,10 @@
 package edu.kpi.testcourse.rest;
 
-import edu.kpi.testcourse.auth.AuthorizationMockServiceImpl;
+import edu.kpi.testcourse.auth.AuthorizationMockService;
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
-import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
+import edu.kpi.testcourse.helper.JsonTool;
+import edu.kpi.testcourse.logic.ShortLinkService;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -30,13 +31,13 @@ import javax.validation.constraints.NotNull;
 public class UrlController {
 
   @Inject
-  ShortLinkServiceImpl shortLinkService;
+  ShortLinkService shortLinkService;
 
   @Inject
-  AuthorizationMockServiceImpl authorizationMockService;
+  AuthorizationMockService authorizationMockService;
 
   @Inject
-  JsonToolJacksonImpl jsonTool;
+  JsonTool jsonTool;
 
   /**
    * Authorized user can shorten a URL on this route.

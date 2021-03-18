@@ -1,7 +1,7 @@
 package edu.kpi.testcourse.rest;
 
 import edu.kpi.testcourse.exception.url.ShortLinkNotFoundException;
-import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
+import edu.kpi.testcourse.logic.ShortLinkService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 public class RedirectLinkController {
 
   @Inject
-  ShortLinkServiceImpl shortLinkService;
+  ShortLinkService shortLinkService;
 
   /**
    * GET /r route.

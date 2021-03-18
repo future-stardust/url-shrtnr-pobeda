@@ -2,6 +2,7 @@ package edu.kpi.testcourse.rest;
 
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonTool;
 import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
@@ -33,7 +34,7 @@ public class ShortenLinkTest {
   private static HttpClient client;
 
   @Inject
-  JsonToolJacksonImpl jsonTool;
+  JsonTool jsonTool;
 
   /**
    * Get shortened URL from POST /urls/shorten response.

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import edu.kpi.testcourse.dto.User;
-import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
+import edu.kpi.testcourse.helper.JsonTool;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 @MicronautTest
 public class SignUpTest {
   @Inject
-  JsonToolJacksonImpl jsonTool;
+  JsonTool jsonTool;
 
   private static EmbeddedServer server;
   private static HttpClient client;

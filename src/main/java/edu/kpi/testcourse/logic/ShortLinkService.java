@@ -1,7 +1,7 @@
 package edu.kpi.testcourse.logic;
 
 import edu.kpi.testcourse.dto.ShortLink;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 
 /**
@@ -14,7 +14,11 @@ public interface ShortLinkService {
 
   boolean isUrlValid(String destination);
 
+  boolean deleteLinkIfBelongsToUser(String email, String destination);
+
   ShortLink saveLink(String userEmail, String destination);
 
   ShortLink saveLink(String userEmail, String destination, String alias);
+
+  ArrayList<ShortLink> getLinksByUserEmail(String userEmail);
 }
