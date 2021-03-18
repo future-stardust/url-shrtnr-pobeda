@@ -67,7 +67,7 @@ public class BigTableManagerImpl implements BigTableManager {
   public void storeUserSession(UserSession userSession) throws IOException {
     String json = jsonTool.toJson(userSession);
 
-    bigTable.store(userSession.id().toString(),json,DataFolder.Sessions);
+    bigTable.store(userSession.id().toString(), json, DataFolder.Sessions);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class BigTableManagerImpl implements BigTableManager {
   }
 
   @Override
-  public void deleteUserSession(UUID id ) throws IOException {
+  public void deleteUserSession(UUID id) throws IOException {
     bigTable.delete(id.toString(), DataFolder.Sessions);
   }
 

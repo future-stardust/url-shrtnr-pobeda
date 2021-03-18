@@ -14,7 +14,8 @@ import javax.inject.Singleton;
 @Produces(MediaType.TEXT_PLAIN)
 @Singleton
 @Requires(classes = {SignUpException.class, ExceptionHandler.class})
-public class UserNotFoundExceptionHandler implements ExceptionHandler<UserNotFoundException, HttpResponse<?>> {
+public class UserNotFoundExceptionHandler
+    implements ExceptionHandler<UserNotFoundException, HttpResponse<?>> {
 
   @Override
   public HttpResponse<?> handle(HttpRequest request, UserNotFoundException exception) {

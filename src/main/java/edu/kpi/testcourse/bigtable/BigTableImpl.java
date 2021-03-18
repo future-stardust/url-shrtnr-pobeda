@@ -72,7 +72,7 @@ public class BigTableImpl implements BigTable {
       path = conf.users().resolve(name);
     } else if (folder == DataFolder.Sessions) {
       path = conf.sessions().resolve(name);
-    }else {
+    } else {
       path = conf.storage().resolve(name);
     }
 

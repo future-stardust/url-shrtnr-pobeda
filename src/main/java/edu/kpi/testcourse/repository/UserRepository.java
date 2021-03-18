@@ -4,6 +4,9 @@ import edu.kpi.testcourse.dto.User;
 import java.util.Optional;
 
 
+/**
+ * Interface for UserRepository.
+ */
 public interface UserRepository {
 
   /**
@@ -14,5 +17,10 @@ public interface UserRepository {
    */
   Optional<User> findByEmail(String email);
 
+  /**
+   * Create user.
+   *
+   * @param user to create
+   */
   void create(User user);
 }
