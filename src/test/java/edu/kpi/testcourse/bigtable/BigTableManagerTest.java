@@ -2,6 +2,7 @@ package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.dto.UserSession;
 import edu.kpi.testcourse.helper.JsonTool;
 import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 import javax.inject.Inject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

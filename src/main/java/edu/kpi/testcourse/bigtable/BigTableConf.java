@@ -46,4 +46,13 @@ public final class BigTableConf {
   public Path users() {
     return storagePath.resolve("users");
   }
+
+  /**
+   * Getter for sessions storage path.
+   *
+   * @return sessions forlder
+   */
+  public Path sessions() {
+    return storagePath.resolve("sessions");
+  }
 }

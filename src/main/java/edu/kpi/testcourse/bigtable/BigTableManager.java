@@ -5,6 +5,7 @@ import edu.kpi.testcourse.dto.User;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Interface for facade of BigTable.
