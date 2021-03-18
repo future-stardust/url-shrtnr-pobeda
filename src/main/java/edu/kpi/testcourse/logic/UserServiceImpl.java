@@ -1,12 +1,15 @@
 package edu.kpi.testcourse.logic;
 
 import edu.kpi.testcourse.dto.User;
+import edu.kpi.testcourse.dto.UserSession;
 import edu.kpi.testcourse.exception.auth.InvalidTokenException;
 import edu.kpi.testcourse.exception.bigtable.BigTableException;
 import edu.kpi.testcourse.exception.user.InvalidSignUpRequestException;
 import edu.kpi.testcourse.exception.user.UserAlreadyExistsException;
+import edu.kpi.testcourse.exception.user.UserNotFoundException;
 import edu.kpi.testcourse.repository.UserRepository;
 import edu.kpi.testcourse.repository.UserSessionRepository;
+import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -34,10 +37,14 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void signOut(String accesToken) {
+  public void signOut(String accessToken) {
     try {
-      userSessionRepository.deleteUserSession(accesToken);
-    } catch (BigTableException exception) {
+      Optional<UserSession> userSession = userSessionRepository.findByToken(accessToken);
+      if (userSession.isEmpty()) {
+        throw new UserNotFoundException();
+      }
+      userSessionRepository.deleteUserSession(accessToken);
+    } catch (UserNotFoundException exception) {
       throw new InvalidTokenException();
     }
   }

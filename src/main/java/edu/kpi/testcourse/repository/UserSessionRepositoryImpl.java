@@ -6,7 +6,10 @@ import edu.kpi.testcourse.dto.UserSession;
 import edu.kpi.testcourse.exception.bigtable.BigTableException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -21,6 +24,11 @@ public class UserSessionRepositoryImpl implements UserSessionRepository {
   private BigTableManager bigTableManager;
 
   /**
+   * Users`s sessions list.
+   */
+  private ArrayList<UserSession> userSessions = new ArrayList<>();
+
+  /**
    * Returns user session object.
    *
    * @param token token
@@ -28,11 +36,9 @@ public class UserSessionRepositoryImpl implements UserSessionRepository {
    */
   @Override
   public Optional<UserSession> findByToken(String token) {
-    try {
-      return bigTableManager.findUserSessionByToken(token);
-    } catch (IOException exception) {
-      throw new BigTableException(exception);
-    }
+    return userSessions.stream()
+        .filter(s -> s.token().equals(token))
+        .findFirst();
   }
 
   /**
@@ -43,11 +49,9 @@ public class UserSessionRepositoryImpl implements UserSessionRepository {
    */
   @Override
   public ArrayList<UserSession> getSessionsOfUser(String email) {
-    try {
-      return bigTableManager.listAllUserSessions(email);
-    } catch (IOException exception) {
-      throw new BigTableException(exception);
-    }
+    return userSessions.stream()
+      .filter(s -> s.userEmail().equals(email))
+      .collect(Collectors.toCollection(ArrayList::new));
   }
 
   /**
@@ -57,14 +61,7 @@ public class UserSessionRepositoryImpl implements UserSessionRepository {
    */
   @Override
   public void deleteUserSession(String token) {
-    try {
-      Optional<UserSession> userSession = bigTableManager.findUserSessionByToken(token);
-      if (!userSession.isPresent() && userSession.get().token().equals(token)) {
-        bigTableManager.deleteUserSession(userSession.get().id());
-      }
-    } catch (IOException exception) {
-      throw new BigTableException(exception);
-    }
+    userSessions.removeIf(s -> s.token().equals(token));
   }
 
   /**
@@ -74,10 +71,6 @@ public class UserSessionRepositoryImpl implements UserSessionRepository {
    */
   @Override
   public void saveUserSession(UserSession userSession) {
-    try {
-      bigTableManager.storeUserSession(userSession);
-    } catch (IOException exception) {
-      throw new BigTableException(exception);
-    }
+    userSessions.add(userSession);
   }
 }
