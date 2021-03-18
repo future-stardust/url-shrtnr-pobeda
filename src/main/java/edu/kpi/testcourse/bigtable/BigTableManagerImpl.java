@@ -2,6 +2,7 @@ package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.dto.User;
+import edu.kpi.testcourse.dto.UserSession;
 import edu.kpi.testcourse.helper.JsonTool;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -36,9 +38,36 @@ public class BigTableManagerImpl implements BigTableManager {
   }
 
   @Override
+  public Optional<UserSession> findUserSessionByToken(String token) throws IOException {
+    Path path = bigTable.getDir(DataFolder.Sessions);
+    return Files.walk(path)
+      .map((p) -> {
+        try {
+          if (!Files.isDirectory(p)) {
+            return jsonTool.fromJson(Files.readString(p), UserSession.class);
+          }
+        } catch (IOException exception) {
+          exception.printStackTrace();
+        }
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .filter((s) -> s.token().equals(token))
+      .collect(Collectors.toCollection(ArrayList::new))
+      .stream().findFirst();
+  }
+
+  @Override
   public void storeUser(User user) throws IOException {
     String json = jsonTool.toJson(user);
     bigTable.store(user.email(), json, DataFolder.Users);
+  }
+
+  @Override
+  public void storeUserSession(UserSession userSession) throws IOException {
+    String json = jsonTool.toJson(userSession);
+
+    bigTable.store(userSession.id().toString(),json,DataFolder.Sessions);
   }
 
   @Override
@@ -58,6 +87,11 @@ public class BigTableManagerImpl implements BigTableManager {
   }
 
   @Override
+  public void deleteUserSession(UUID id ) throws IOException {
+    bigTable.delete(id.toString(), DataFolder.Sessions);
+  }
+
+  @Override
   public ArrayList<ShortLink> listAllUserLinks(String email) throws IOException {
     Path path = bigTable.getDir(DataFolder.Links);
     return Files.walk(path)
@@ -73,6 +107,25 @@ public class BigTableManagerImpl implements BigTableManager {
       })
       .filter(Objects::nonNull)
       .filter((s) -> s.email().equals(email))
+      .collect(Collectors.toCollection(ArrayList::new));
+  }
+
+  @Override
+  public ArrayList<UserSession> listAllUserSessions(String email) throws IOException {
+    Path path = bigTable.getDir(DataFolder.Sessions);
+    return Files.walk(path)
+      .map((p) -> {
+        try {
+          if (!Files.isDirectory(p)) {
+            return jsonTool.fromJson(Files.readString(p), UserSession.class);
+          }
+        } catch (IOException exception) {
+          exception.printStackTrace();
+        }
+        return null;
+      })
+      .filter(Objects::nonNull)
+      .filter((s) -> s.userEmail().equals(email))
       .collect(Collectors.toCollection(ArrayList::new));
   }
 

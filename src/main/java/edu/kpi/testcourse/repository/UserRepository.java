@@ -3,9 +3,7 @@ package edu.kpi.testcourse.repository;
 import edu.kpi.testcourse.dto.User;
 import java.util.Optional;
 
-/**
- * User repository interface.
- */
+
 public interface UserRepository {
 
   /**
