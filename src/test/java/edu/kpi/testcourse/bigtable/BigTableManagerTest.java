@@ -1,61 +1,52 @@
 package edu.kpi.testcourse.bigtable;
 
-
-import edu.kpi.testcourse.Main;
 import edu.kpi.testcourse.dto.User;
-import edu.kpi.testcourse.logic.ShortLinkMock;
+import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonTool;
+import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
 public class BigTableManagerTest {
 
   @Inject
-  private BigTableImpl bigTable;
+  private BigTable bigTable;
   @Inject
   private BigTableManagerImpl bigTableManager;
 
-  private static User testUser;
-  private static ShortLinkMock shortLink;
+  private static final User testUser = new User("testMail", "testPass");
+  private static final ShortLink shortLink = new ShortLink("testShort", "testMail", "https://google.com");
   private static String testUserJson;
   private static String shortLinkJson;
 
   @BeforeAll
-  public static void init() throws MalformedURLException {
-    testUser = new User("testMail", "testPass");
-    shortLink = new ShortLinkMock("testShort", "testMail",
-      new URL("https://google.com"));
-    testUserJson = Main.getGson().toJson(testUser, User.class);
-    shortLinkJson = Main.getGson().toJson(shortLink, ShortLinkMock.class);
+  public static void init() {
+    JsonTool jsonTool = new JsonToolJacksonImpl();
+    testUserJson = jsonTool.toJson(testUser);
+    shortLinkJson = jsonTool.toJson(shortLink);
   }
 
-  @BeforeEach
+  @AfterEach
   public void cleanup() {
-    if (Files.exists(Paths.get(bigTable.getDir(DataFolder.Users).toString(), testUser.email()))) {
-      try {
+    try {
+      if (Files.exists(bigTable.getDir(DataFolder.Users).resolve(testUser.email()))) {
         bigTable.delete(testUser.email(), DataFolder.Users);
-      } catch (IOException exception) {
-        exception.printStackTrace();
       }
-    }
-    if (Files.exists(Paths.get(bigTable.getDir(DataFolder.Links).toString(),
-      shortLink.shortLink()))) {
-      try {
-        bigTable.delete(shortLink.shortLink(), DataFolder.Links);
-      } catch (IOException exception) {
-        exception.printStackTrace();
+      if (Files.exists(bigTable.getDir(DataFolder.Links).resolve(shortLink.alias()))) {
+        bigTable.delete(shortLink.alias(), DataFolder.Links);
       }
+    } catch (IOException exception) {
+      throw new RuntimeException(exception);
     }
   }
 
@@ -93,45 +84,47 @@ public class BigTableManagerTest {
   @Test
   public void managerStoresLink() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
-    assertDoesNotThrow(() -> {
-      assertEquals(shortLinkJson, bigTable.read(shortLink.shortLink(), DataFolder.Links));
-    });
+    assertDoesNotThrow(
+      () -> assertEquals(shortLinkJson, bigTable.read(shortLink.alias(), DataFolder.Links)));
   }
 
   @Test
   public void managerFindsAllLinksOfUser() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ArrayList<ShortLinkMock> list = bigTableManager.listAllUserLinks(shortLink.userEmail());
+      ArrayList<ShortLink> list = bigTableManager.listAllUserLinks(shortLink.email());
       assertEquals(1, list.size());
-      ShortLinkMock resp = list.get(0);
-      assertEquals(shortLink.userEmail(), resp.userEmail());
-      assertEquals(shortLink.shortLink(), resp.shortLink());
-      assertEquals(shortLink.destination(), resp.destination());
+      ShortLink resp = list.get(0);
+      assertEquals(shortLink.email(), resp.email());
+      assertEquals(shortLink.alias(), resp.alias());
+      assertEquals(shortLink.url(), resp.url());
     });
   }
 
   @Test
   public void managerDeletesLink() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
-    assertDoesNotThrow(() -> bigTableManager.deleteLink(shortLink.shortLink()));
+    assertDoesNotThrow(() -> bigTableManager.deleteLink(shortLink.alias()));
   }
 
   @Test
   public void managerFindsShortLinkByAlias() {
     assertDoesNotThrow(() -> bigTableManager.storeLink(shortLink));
     assertDoesNotThrow(() -> {
-      ShortLinkMock resp = bigTableManager.findShortLink(shortLink.shortLink()).get();
-      assertEquals(shortLink.userEmail(), resp.userEmail());
-      assertEquals(shortLink.shortLink(), resp.shortLink());
-      assertEquals(shortLink.destination(), resp.destination());
+      Optional<ShortLink> respOpt = bigTableManager.findShortLink(shortLink.alias());
+      if (respOpt.isEmpty()) {
+        fail();
+      }
+      ShortLink resp = respOpt.get();
+      assertEquals(shortLink.email(), resp.email());
+      assertEquals(shortLink.alias(), resp.alias());
+      assertEquals(shortLink.url(), resp.url());
     });
   }
 
   @Test
   public void returnsEmptyWhenLinkDoesNotExist() {
-    assertDoesNotThrow(() -> {
-      assertEquals(Optional.empty(), bigTableManager.findShortLink(shortLink.shortLink()));
-    });
+    assertDoesNotThrow(
+      () -> assertEquals(Optional.empty(), bigTableManager.findShortLink(shortLink.alias())));
   }
 }

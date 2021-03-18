@@ -1,8 +1,8 @@
 package edu.kpi.testcourse.repository;
 
 import edu.kpi.testcourse.bigtable.BigTableManager;
+import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.exception.bigtable.BigTableException;
-import edu.kpi.testcourse.logic.ShortLinkMock;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class LinkRepositoryImpl implements LinkRepository {
    * @return short link if it has been found
    */
   @Override
-  public Optional<ShortLinkMock> findByShortLink(String shortLink) {
+  public Optional<ShortLink> findByShortLink(String shortLink) {
     try {
       return bigTableManager.findShortLink(shortLink);
     } catch (IOException exception) {
@@ -44,11 +44,11 @@ public class LinkRepositoryImpl implements LinkRepository {
   @Override
   public boolean deleteLink(String email, String shortLink) {
     try {
-      Optional<ShortLinkMock> link = bigTableManager.findShortLink(shortLink);
+      Optional<ShortLink> link = bigTableManager.findShortLink(shortLink);
       if (link.isEmpty()) {
         return false;
       }
-      if (link.get().userEmail().equals(email)) {
+      if (link.get().email().equals(email)) {
         bigTableManager.deleteLink(shortLink);
         return true;
       } else {
@@ -66,7 +66,7 @@ public class LinkRepositoryImpl implements LinkRepository {
    * @return ArrayList
    */
   @Override
-  public ArrayList<ShortLinkMock> getLinksOfUser(String email) {
+  public ArrayList<ShortLink> getLinksOfUser(String email) {
     try {
       return bigTableManager.listAllUserLinks(email);
     } catch (IOException exception) {
@@ -80,7 +80,7 @@ public class LinkRepositoryImpl implements LinkRepository {
    * @param link to save
    */
   @Override
-  public void saveLink(ShortLinkMock link) {
+  public void saveLink(ShortLink link) {
     try {
       bigTableManager.storeLink(link);
     } catch (IOException exception) {
