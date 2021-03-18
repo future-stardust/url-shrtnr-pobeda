@@ -26,12 +26,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
   @Inject
   private LinkRepository linkRepo;
 
-  /**
-   * Retrieve "long version" of link by short link.
-   *
-   * @param shortLink short link
-   * @return Optional - "long link" if it had been found in the storage
-   */
+  @Override
   public Optional<String> getDestinationByShortLink(String shortLink) {
     Optional<ShortLink> resp = linkRepo.findByShortLink(shortLink);
     return resp.isPresent()
@@ -39,23 +34,12 @@ public class ShortLinkServiceImpl implements ShortLinkService {
        : Optional.empty();
   }
 
-  /**
-   * Delete link entity by alias if belongs to a user with given email.
-   *
-   * @param email user's email
-   * @param shortLink link's alias
-   * @return if a link has been returned
-   */
+  @Override
   public boolean deleteLinkIfBelongsToUser(String email, String shortLink) {
     return linkRepo.deleteLink(email, shortLink);
   }
 
-  /**
-   * Get links created by a user.
-   *
-   * @param email email of user
-   * @return list of user's links
-   */
+  @Override
   public ArrayList<ShortLink> getLinksByUserEmail(String email) {
     return linkRepo.getLinksOfUser(email);
   }
@@ -80,11 +64,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     return alias.matches(ALIAS_PATTERN);
   }
 
-  /**
-   * Randomly generate alias for long link.
-   *
-   * @return alias - 8-digits alphanumeric sequence consisting of characters [0-9a-zA-Z]
-   */
+  @Override
   public String generateAlias() {
     Random random = new Random();
 
@@ -105,12 +85,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
       .toString();
   }
 
-  /**
-   * Check validity of URL.
-   *
-   * @param destination URL that should be validated
-   * @return is a 'destination' parameter a valid URL
-   */
+  @Override
   public boolean isUrlValid(String destination) {
     try {
       new URL(destination).toURI();
@@ -130,13 +105,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     return SHORT_LINK_BEGINNING + shortLink;
   }
 
-  /**
-   * Create and save user link without custom alias provided.
-   * Generates alias automatically.
-   *
-   * @param destination - "long" link alias must be provided for
-   * @return a link that has been created
-   */
+  @Override
   public ShortLink saveLink(String userEmail, String destination)
       throws InvalidUrlException {
 
@@ -155,13 +124,7 @@ public class ShortLinkServiceImpl implements ShortLinkService {
     }
   }
 
-  /**
-   * Create and save user link with custom alias provided.
-   *
-   * @param destination - "long" link alias must be provided for
-   * @param alias - custom user alias for a "long" link
-   * @return a link that has been created
-   */
+  @Override
   public ShortLink saveLink(String userEmail, String destination, String alias)
       throws InvalidUrlException {
 

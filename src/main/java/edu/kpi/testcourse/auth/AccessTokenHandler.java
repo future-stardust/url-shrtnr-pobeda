@@ -63,8 +63,8 @@ public class AccessTokenHandler extends AccessRefreshTokenLoginHandler {
         List<UserSession> sessions = userSessionRepository
             .getSessionsOfUser(servicedUser.get().email());
         sessions.forEach(session -> {
-            userSessionRepository.deleteUserSession(session.token());
-      });
+          userSessionRepository.deleteUserSession(session.token());
+        });
       }
 
       userSessionRepository.saveUserSession(

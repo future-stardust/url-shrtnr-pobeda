@@ -1,9 +1,10 @@
 package edu.kpi.testcourse.rest;
 
-import edu.kpi.testcourse.Main;
-import edu.kpi.testcourse.auth.AuthorizationMockServiceImpl;
+import edu.kpi.testcourse.auth.AuthorizationMockService;
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.helper.JsonTool;
+import edu.kpi.testcourse.logic.ShortLinkService;
 import edu.kpi.testcourse.logic.ShortLinkServiceImpl;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -30,10 +31,13 @@ import javax.validation.constraints.NotNull;
 public class UrlController {
 
   @Inject
-  ShortLinkServiceImpl shortLinkService;
+  ShortLinkService shortLinkService;
 
   @Inject
-  AuthorizationMockServiceImpl authorizationMockService;
+  AuthorizationMockService authorizationMockService;
+
+  @Inject
+  JsonTool jsonTool;
 
   /**
    * Authorized user can shorten a URL on this route.
@@ -64,7 +68,7 @@ public class UrlController {
     }
     String fullShortLink = ShortLinkServiceImpl.createFullLink(shortLink.alias());
 
-    return Main.getGson().toJson(Collections.singletonMap("shortened_url", fullShortLink));
+    return jsonTool.toJson(Collections.singletonMap("shortened_url", fullShortLink));
   }
 
   /**
@@ -94,8 +98,10 @@ public class UrlController {
    * @return list of urls
    */
   @Get()
-  public MutableHttpResponse<LinksOfUser> getUserUrls(@Header String token) {
+  public MutableHttpResponse<String> getUserUrls(@Header String token) {
     String email = this.authorizationMockService.authorizeUser(token);
-    return HttpResponse.ok(new LinksOfUser(this.shortLinkService.getLinksByUserEmail(email)));
+    LinksOfUser linksOfUser = new LinksOfUser(this.shortLinkService.getLinksByUserEmail(email));
+
+    return HttpResponse.ok(jsonTool.toJson(linksOfUser));
   }
 }
