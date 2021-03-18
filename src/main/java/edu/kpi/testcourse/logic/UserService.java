@@ -16,11 +16,4 @@ public interface UserService {
   * @throws UserAlreadyExistsException User with this email already exists
   */
   void signup(User user) throws InvalidSignUpRequestException, UserAlreadyExistsException;
-
-  /**
-  * Process sign out request.
-  *
-  * @param accesToken active user token
-  */
-  void signOut(String accesToken);
 }
