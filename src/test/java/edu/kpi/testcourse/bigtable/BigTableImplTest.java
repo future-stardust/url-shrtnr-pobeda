@@ -40,7 +40,6 @@ class BigTableImplTest {
     assertTrue(Files.exists(bigTable.getDir(null)));
     assertTrue(Files.exists(bigTable.getDir(DataFolder.Links)));
     assertTrue(Files.exists(bigTable.getDir(DataFolder.Users)));
-    assertTrue(Files.exists(bigTable.getDir(DataFolder.Sessions)));
   }
 
   @Test
