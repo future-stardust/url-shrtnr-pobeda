@@ -39,6 +39,3 @@ local.properties
 
 # Cache of project
 .gradletasknamecache
-
-# Repos folder
-/data

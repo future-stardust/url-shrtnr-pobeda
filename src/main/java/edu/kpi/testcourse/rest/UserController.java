@@ -1,14 +1,10 @@
 package edu.kpi.testcourse.rest;
 
-import com.google.gson.JsonParser;
-import com.nimbusds.jose.shaded.json.JSONObject;
+import edu.kpi.testcourse.auth.AuthorizationService;
 import edu.kpi.testcourse.dto.User;
-import edu.kpi.testcourse.exception.user.InvalidSignUpRequestException;
 import edu.kpi.testcourse.exception.user.SignUpException;
-import edu.kpi.testcourse.exception.user.UserAlreadyExistsException;
 import edu.kpi.testcourse.helper.JsonTool;
 import edu.kpi.testcourse.logic.UserService;
-import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -36,6 +32,9 @@ public class UserController {
 
   @Inject
   private UserService userService;
+
+  @Inject
+  private AuthorizationService authorizationService;
 
   @Inject
   private JsonTool jsonTool;
@@ -105,8 +104,8 @@ public class UserController {
   @Secured(SecurityRule.IS_AUTHENTICATED)
   @Get(value = "/signout")
   public HttpResponse<String> signOut(@Header("Authorization") String token) {
-    token = token.replace("Bearer ","");
-    userService.signOut(token);
+    token = token.replace("Bearer ", "");
+    authorizationService.signOut(token);
     return HttpResponse.ok("Signed out.");
   }
 }

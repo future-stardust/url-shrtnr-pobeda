@@ -7,6 +7,8 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
@@ -18,6 +20,7 @@ import javax.validation.constraints.NotNull;
  * GET /r - nothing
  * GET /r/:link - redirect by short link to destination
  */
+@Secured(SecurityRule.IS_ANONYMOUS)
 @Controller("/r")
 public class RedirectLinkController {
 
