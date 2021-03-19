@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpRequest;
@@ -25,13 +26,9 @@ import org.reactivestreams.Publisher;
 
 @MicronautTest
 public class RedirectLinkTest {
-
-  private static final String TEST_VALID_TOKEN =
-    "eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTY0NjczMDczOCwia"
-      + "WF0IjoxNjE1MTk0NzM4fQ.SYb7CJl3Gx0AyeHcRGR6jWr6Gbxg0m8b7V2ZhynrYuY";
-  private static final String TEST_VALID_TOKEN2 =
-    "eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ1c2VyMkBtYWlsLmNvbSIsImV4cCI6MTY0NjczMDczOCwia"
-      + "WF0IjoxNjE1MTk0NzM4fQ.1VyiEw77yt998_6zNp-fxSMwpMyY93beRMMLno_uKSg";
+  private static String userToken;
+  private static final String password = "pwd123";
+  private static final User user = new User("user1@mail.com", password);
 
   private static String randomAlias;
   private static String customAlias;
@@ -46,6 +43,8 @@ public class RedirectLinkTest {
    * @return the value of "shortened_url" field
    */
   private static String getShortenedUrlFromResponseBody(String body) {
+    // as jsonTool can be injected but cannot be retrieved in static context,
+    // create it as local field.
     JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
 
     TreeMap<String, String> parsed = jsonTool.fromJson(body, TreeMap.class);
@@ -66,6 +65,22 @@ public class RedirectLinkTest {
     String url1 = "https://devblogs.microsoft.com/typescript/announcing-the-new-typescript-handbook/";
     String url2 = "https://darcs.realworldhaskell.org/static/00book.pdf";
 
+    // register our user
+    client.toBlocking().exchange(
+      HttpRequest.POST(
+        "/users/signup",
+        jsonTool.toJson(user)
+      )
+    );
+
+    // sign in
+    userToken = "Bearer " + client.toBlocking().exchange(
+      HttpRequest.POST(
+        "/users/signin",
+        jsonTool.toJson(user)
+      )
+    ).header("token");
+
     String noAliasBody = client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
@@ -76,7 +91,7 @@ public class RedirectLinkTest {
             url1
           )
         )
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", userToken)
     );
     String withAliasBody = client.toBlocking().retrieve(
       HttpRequest.POST(
@@ -88,7 +103,7 @@ public class RedirectLinkTest {
             url2
           )
         )
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", userToken)
     );
 
     randomAlias = getShortenedUrlFromResponseBody(noAliasBody);
@@ -111,7 +126,7 @@ public class RedirectLinkTest {
     // then the Publisher/Subscriber contract is used in the test
     Publisher<HttpResponse<Object>> exchange = client.exchange(
       HttpRequest.GET("/r/haskell")
-        .header("token", TEST_VALID_TOKEN)
+        .header("Authorization", userToken)
         .contentType(MediaType.APPLICATION_FORM_URLENCODED), Object.class
     );
 
@@ -135,7 +150,6 @@ public class RedirectLinkTest {
     // then the Publisher/Subscriber contract is used in the test
     Publisher<HttpResponse<Object>> exchange = client.exchange(
       HttpRequest.GET("/r/haskell")
-        .header("token", TEST_VALID_TOKEN)
         .contentType(MediaType.APPLICATION_FORM_URLENCODED), Object.class
     );
 
@@ -175,7 +189,8 @@ public class RedirectLinkTest {
     assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.DELETE("/urls/" + aliasToDelete).header("token", TEST_VALID_TOKEN)
+        HttpRequest.DELETE("/urls/" + aliasToDelete)
+          .header("Authorization", userToken)
       )
     );
 
