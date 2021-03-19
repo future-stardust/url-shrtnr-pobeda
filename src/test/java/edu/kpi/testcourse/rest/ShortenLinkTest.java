@@ -69,7 +69,7 @@ public class ShortenLinkTest {
     );
 
     // sign in
-    userToken = client.toBlocking().exchange(
+    userToken = "Bearer " + client.toBlocking().exchange(
       HttpRequest.POST(
         "/users/signin",
         jsonTool.toJson(user)
@@ -135,7 +135,7 @@ public class ShortenLinkTest {
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
         HttpRequest.POST("/urls/shorten", requestBody)
-          .header("Authorization", "Bearer " + userToken)
+          .header("Authorization", userToken)
       )
     );
 
@@ -156,7 +156,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
 
     Object parsedBody = jsonTool.fromJson(body, Object.class);
@@ -180,7 +180,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
       )
     );
 
@@ -201,7 +201,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
 
     assertThat(getShortenedUrlFromResponseBody(responseBody)).isEqualTo("http://localhost:8080/r/tsBook");
@@ -235,25 +235,25 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         jsonTool.toJson(requestBody1)
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
         jsonTool.toJson(requestBody2)
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
         jsonTool.toJson(requestBody3)
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
 
     String responseBody = client.toBlocking().retrieve(
       HttpRequest.GET(
         "/urls"
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
 
     assertDoesNotThrow(() -> {
@@ -279,7 +279,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
 
     // the exception is always thrown, because the DELETE /urls/{alias} response has empty body
@@ -287,7 +287,7 @@ public class ShortenLinkTest {
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
         HttpRequest.DELETE("/urls/" + myAlias)
-          .header("Authorization", "Bearer " + userToken)
+          .header("Authorization", userToken)
       )
     );
     assertEquals(204, e.getStatus().getCode());
@@ -301,7 +301,7 @@ public class ShortenLinkTest {
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
         HttpRequest.DELETE("/urls/" + nonExistentAlias)
-          .header("Authorization", "Bearer " + userToken)
+          .header("Authorization", userToken)
       )
     );
     assertEquals(404, e.getStatus().getCode());

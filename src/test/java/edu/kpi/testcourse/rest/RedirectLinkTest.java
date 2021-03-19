@@ -74,7 +74,7 @@ public class RedirectLinkTest {
     );
 
     // sign in
-    userToken = client.toBlocking().exchange(
+    userToken = "Bearer " + client.toBlocking().exchange(
       HttpRequest.POST(
         "/users/signin",
         jsonTool.toJson(user)
@@ -91,7 +91,7 @@ public class RedirectLinkTest {
             url1
           )
         )
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
     String withAliasBody = client.toBlocking().retrieve(
       HttpRequest.POST(
@@ -103,7 +103,7 @@ public class RedirectLinkTest {
             url2
           )
         )
-      ).header("Authorization", "Bearer " + userToken)
+      ).header("Authorization", userToken)
     );
 
     randomAlias = getShortenedUrlFromResponseBody(noAliasBody);
@@ -126,7 +126,7 @@ public class RedirectLinkTest {
     // then the Publisher/Subscriber contract is used in the test
     Publisher<HttpResponse<Object>> exchange = client.exchange(
       HttpRequest.GET("/r/haskell")
-        .header("Authorization", "Bearer " + userToken)
+        .header("Authorization", userToken)
         .contentType(MediaType.APPLICATION_FORM_URLENCODED), Object.class
     );
 
@@ -190,7 +190,7 @@ public class RedirectLinkTest {
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
         HttpRequest.DELETE("/urls/" + aliasToDelete)
-          .header("Authorization", "Bearer " + userToken)
+          .header("Authorization", userToken)
       )
     );
 
