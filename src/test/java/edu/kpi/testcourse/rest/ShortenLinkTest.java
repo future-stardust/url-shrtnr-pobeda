@@ -2,6 +2,7 @@ package edu.kpi.testcourse.rest;
 
 import edu.kpi.testcourse.dto.LinksOfUser;
 import edu.kpi.testcourse.dto.ShortLink;
+import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.helper.JsonTool;
 import edu.kpi.testcourse.helper.JsonToolJacksonImpl;
 import io.micronaut.context.ApplicationContext;
@@ -23,12 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @MicronautTest
 public class ShortenLinkTest {
-
-  private static final String TEST_VALID_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ1c2VyMUBtYWlsLmNvbSIsImV4cCI6MTY0NjczMDczOCwia"
-    + "WF0IjoxNjE1MTk0NzM4fQ.SYb7CJl3Gx0AyeHcRGR6jWr6Gbxg0m8b7V2ZhynrYuY";
-  private static final String TEST_VALID_TOKEN2 = "eyJhbGciOiJIUzI1NiJ9.eyJJc3N1ZXIiOiJ1c2VyMkBtYWlsLmNvbSIsImV4cCI6MTY0NjczMDczOCwia"
-    + "WF0IjoxNjE1MTk0NzM4fQ.1VyiEw77yt998_6zNp-fxSMwpMyY93beRMMLno_uKSg";
-  private static final String userEmail = "user1@mail.com";
+  private static String userToken;
+  private static final String password = "pwd123";
+  private static final User user = new User("user1@mail.com", password);
 
   private static EmbeddedServer server;
   private static HttpClient client;
@@ -43,6 +41,8 @@ public class ShortenLinkTest {
    * @return the value of "shortened_url" field
    */
   private static String getShortenedUrlFromResponseBody(String body) {
+    // as jsonTool can be injected but cannot be retrieved in static context,
+    // create it as local field.
     JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
 
     TreeMap<String, String> parsed = jsonTool.fromJson(body, TreeMap.class);
@@ -51,10 +51,30 @@ public class ShortenLinkTest {
 
   @BeforeAll
   public static void setupServer() {
+    // as jsonTool can be injected but cannot be retrieved in static context,
+    // create it as local field.
+    JsonToolJacksonImpl jsonTool = new JsonToolJacksonImpl();
+
     server = ApplicationContext.run(EmbeddedServer.class);
     client = server
       .getApplicationContext()
       .createBean(HttpClient.class, server.getURL());
+
+    // register our user
+    client.toBlocking().exchange(
+      HttpRequest.POST(
+        "/users/signup",
+        jsonTool.toJson(user)
+      )
+    );
+
+    // sign in
+    userToken = client.toBlocking().exchange(
+      HttpRequest.POST(
+        "/users/signin",
+        jsonTool.toJson(user)
+      )
+    ).header("token");
   }
 
   @AfterAll
@@ -100,7 +120,7 @@ public class ShortenLinkTest {
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", requestBody).header("token", "bad-token")
+        HttpRequest.POST("/urls/shorten", requestBody).header("Authorization", "bad-token")
       )
     );
 
@@ -114,7 +134,8 @@ public class ShortenLinkTest {
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.POST("/urls/shorten", requestBody).header("token", TEST_VALID_TOKEN)
+        HttpRequest.POST("/urls/shorten", requestBody)
+          .header("Authorization", "Bearer " + userToken)
       )
     );
 
@@ -135,7 +156,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
 
     Object parsedBody = jsonTool.fromJson(body, Object.class);
@@ -159,7 +180,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
       )
     );
 
@@ -180,7 +201,7 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
 
     assertThat(getShortenedUrlFromResponseBody(responseBody)).isEqualTo("http://localhost:8080/r/tsBook");
@@ -214,25 +235,25 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         jsonTool.toJson(requestBody1)
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
         jsonTool.toJson(requestBody2)
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
     client.toBlocking().retrieve(
       HttpRequest.POST(
         "/urls/shorten",
         jsonTool.toJson(requestBody3)
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
 
     String responseBody = client.toBlocking().retrieve(
       HttpRequest.GET(
         "/urls"
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
 
     assertDoesNotThrow(() -> {
@@ -258,14 +279,15 @@ public class ShortenLinkTest {
       HttpRequest.POST(
         "/urls/shorten",
         requestBody
-      ).header("token", TEST_VALID_TOKEN)
+      ).header("Authorization", "Bearer " + userToken)
     );
 
     // the exception is always thrown, because the DELETE /urls/{alias} response has empty body
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.DELETE("/urls/" + myAlias).header("token", TEST_VALID_TOKEN)
+        HttpRequest.DELETE("/urls/" + myAlias)
+          .header("Authorization", "Bearer " + userToken)
       )
     );
     assertEquals(204, e.getStatus().getCode());
@@ -278,7 +300,8 @@ public class ShortenLinkTest {
     HttpClientResponseException e = assertThrows(
       HttpClientResponseException.class,
       () -> client.toBlocking().retrieve(
-        HttpRequest.DELETE("/urls/" + nonExistentAlias).header("token", TEST_VALID_TOKEN)
+        HttpRequest.DELETE("/urls/" + nonExistentAlias)
+          .header("Authorization", "Bearer " + userToken)
       )
     );
     assertEquals(404, e.getStatus().getCode());
