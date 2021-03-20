@@ -2,6 +2,7 @@ package edu.kpi.testcourse.bigtable;
 
 import edu.kpi.testcourse.dto.ShortLink;
 import edu.kpi.testcourse.dto.User;
+import edu.kpi.testcourse.dto.UserSession;
 import edu.kpi.testcourse.helper.JsonTool;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
