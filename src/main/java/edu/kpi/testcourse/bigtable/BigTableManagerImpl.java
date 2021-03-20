@@ -5,6 +5,7 @@ import edu.kpi.testcourse.dto.User;
 import edu.kpi.testcourse.dto.UserSession;
 import edu.kpi.testcourse.helper.JsonTool;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -66,7 +67,8 @@ public class BigTableManagerImpl implements BigTableManager {
       .map((p) -> {
         try {
           if (!Files.isDirectory(p)) {
-            return jsonTool.fromJson(Files.readString(p), ShortLink.class);
+            return jsonTool
+              .fromJson(Files.readString(p, Charset.defaultCharset()), ShortLink.class);
           }
         } catch (IOException exception) {
           exception.printStackTrace();

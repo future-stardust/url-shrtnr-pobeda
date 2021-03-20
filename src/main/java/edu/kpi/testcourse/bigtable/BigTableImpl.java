@@ -2,6 +2,7 @@ package edu.kpi.testcourse.bigtable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,7 +74,7 @@ public class BigTableImpl implements BigTable {
       throw new FileNotFoundException(
         String.format("%s does not exist", path.getFileName().toString()));
     }
-    return Files.readString(path);
+    return Files.readString(path, Charset.defaultCharset());
   }
 
   @Override
