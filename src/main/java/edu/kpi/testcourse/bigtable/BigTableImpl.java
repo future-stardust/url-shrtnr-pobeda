@@ -35,9 +35,6 @@ public class BigTableImpl implements BigTable {
       if (!Files.exists(conf.users())) {
         Files.createDirectory(conf.users());
       }
-      if (!Files.exists(conf.sessions())) {
-        Files.createDirectory(conf.sessions());
-      }
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
